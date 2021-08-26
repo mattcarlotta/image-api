@@ -1,4 +1,4 @@
-use super::{PendingTask, Signal};
+use super::{PendingTasks, Signal};
 use std::thread::{spawn, JoinHandle};
 
 pub struct Worker {
@@ -8,7 +8,12 @@ pub struct Worker {
 
 impl Worker {
     // Accepts tasks from the Scheduler and conditionally invokes them based upon their Signal
-    pub fn new(id: usize, rx: PendingTask) -> Self {
+    //
+    // Arguments:
+    // * id: usize
+    // * rx: PendingTasks
+    //
+    pub fn new(id: usize, rx: PendingTasks) -> Self {
         let channel = spawn(move || loop {
             let signal = rx.lock().unwrap().recv().unwrap();
             match signal {

@@ -21,7 +21,7 @@ impl<'a> Server<'a> {
     // Creates a single Tcp Server
     //
     // Arguments:
-    // * address: &'static str
+    // * address: &str
     // * port: usize
     //
     pub fn new(address: &'a str, port: usize) -> Self {

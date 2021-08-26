@@ -5,7 +5,7 @@ use std::sync::{
 };
 
 pub type Task = Box<dyn FnOnce() + Send + 'static>;
-pub type PendingTask = Arc<Mutex<Receiver<Signal>>>;
+pub type PendingTasks = Arc<Mutex<Receiver<Signal>>>;
 
 // Communicates the current operational status to the Worker
 pub enum Signal {
@@ -20,6 +20,10 @@ pub struct Scheduler {
 
 impl Scheduler {
     // Initializes a connection pool to hand-off requests to a Worker
+    //
+    // Arguments:
+    // * channels: usize
+    //
     pub fn new<'a>(channels: usize) -> Result<Self, &'a str> {
         if channels <= 0 {
             return Err("You must specify the maximum number of channels to create.");

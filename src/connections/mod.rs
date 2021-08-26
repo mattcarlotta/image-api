@@ -1,4 +1,4 @@
-pub use scheduler::{Scheduler, Signal, Task};
+pub use scheduler::{PendingTask, Scheduler, Signal, Task};
 pub use worker::Worker;
 
 pub mod scheduler;

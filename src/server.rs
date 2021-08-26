@@ -12,24 +12,24 @@ use std::time::Duration;
 //}
 //
 #[derive(Debug)]
-pub struct Server {
-    address: &'static str,
+pub struct Server<'a> {
+    address: &'a str,
     port: usize,
 }
 
-impl Server {
+impl<'a> Server<'a> {
     // Creates a single Tcp Server
     //
     // Arguments:
     // * address: &'static str
     // * port: usize
     //
-    pub fn new(address: &'static str, port: usize) -> Self {
+    pub fn new(address: &'a str, port: usize) -> Self {
         Server { address, port }
     }
 
     // Binds a TcpListener to a host, creates a connection pool and hands off requests to Router
-    pub fn listen(&self) -> Result<(), &'static str> {
+    pub fn listen(&self) -> Result<(), &str> {
         let host = format!("{}:{}", self.address, self.port);
 
         println!("Listening for requests on: {}", &host);

@@ -1,5 +1,4 @@
-use super::Signal;
-use std::sync::{mpsc::Receiver, Arc, Mutex};
+use super::{PendingTask, Signal};
 use std::thread::{spawn, JoinHandle};
 
 pub struct Worker {
@@ -9,7 +8,7 @@ pub struct Worker {
 
 impl Worker {
     // Accepts tasks from the Scheduler and conditionally invokes them based upon their Signal
-    pub fn new(id: usize, rx: Arc<Mutex<Receiver<Signal>>>) -> Self {
+    pub fn new(id: usize, rx: PendingTask) -> Self {
         let channel = spawn(move || loop {
             let signal = rx.lock().unwrap().recv().unwrap();
             match signal {

@@ -1,4 +1,4 @@
-use crate::connections::TaskPool;
+use crate::connections::Scheduler;
 // use std::convert::TryFrom;
 use std::fs;
 use std::io::prelude::*;
@@ -18,33 +18,40 @@ pub struct Server {
 }
 
 impl Server {
+    // Creates a single Tcp Server
+    //
+    // Arguments:
+    // * address: &'static str
+    // * port: usize
+    //
     pub fn new(address: &'static str, port: usize) -> Self {
         Server { address, port }
     }
 
-    pub fn listen(&self) {
+    // Binds a TcpListener to a host, creates a connection pool and hands off requests to Router
+    pub fn listen(&self) -> Result<(), &'static str> {
         let host = format!("{}:{}", self.address, self.port);
 
         println!("Listening for requests on: {}", &host);
 
         let listener = TcpListener::bind(host).unwrap();
         // TODO Change this hardcoded number to arg
-        let pool = match TaskPool::new(8) {
-            Ok(p) => p,
-            Err(e) => panic!("{}", e),
-        };
+        let pool = Scheduler::new(8)?;
 
         for stream in listener.incoming() {
-            let stream = stream.unwrap();
-
-            pool.create(|| {
-                handle_request(stream);
-            })
+            match stream {
+                Ok(stream) => pool.create(|| {
+                    handle_request(stream);
+                }),
+                Err(e) => println!("Unable to handle request: {}", e),
+            }
         }
+
+        Ok(())
     }
 }
 
-// TODO Move this into it a RouteHandler
+// TODO Move this into it a Router
 fn handle_request(mut stream: TcpStream) {
     let mut buffer = [0; 1024];
 

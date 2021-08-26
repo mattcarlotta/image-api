@@ -1,5 +1,5 @@
-pub use task_pool::{Signal, Task, TaskPool};
+pub use scheduler::{Scheduler, Signal, Task};
 pub use worker::Worker;
 
-pub mod task_pool;
+pub mod scheduler;
 pub mod worker;

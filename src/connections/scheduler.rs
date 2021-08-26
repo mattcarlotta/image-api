@@ -6,20 +6,22 @@ use std::sync::{
 
 pub type Task = Box<dyn FnOnce() + Send + 'static>;
 
+// Communicates the current operational status to the Worker
 pub enum Signal {
     CreateTask(Task),
     TerminateTask,
 }
 
-pub struct TaskPool {
+pub struct Scheduler {
     workers: Vec<Worker>,
     tx: Sender<Signal>,
 }
 
-impl TaskPool {
+impl Scheduler {
+    // Initializes a connection pool to hand-off requests to a Worker
     pub fn new(channels: usize) -> Result<Self, &'static str> {
         if channels <= 0 {
-            return Err("You must specify the maximum number of channels");
+            return Err("You must specify the maximum number of channels to create.");
         }
 
         let (tx, rx) = channel();
@@ -32,22 +34,22 @@ impl TaskPool {
             workers.push(Worker::new(id, Arc::clone(&rx)));
         }
 
-        Ok(TaskPool { workers, tx })
+        Ok(Scheduler { workers, tx })
     }
 
-    pub fn create<F>(&self, f: F)
+    // Generates a new task by sending it to a Worker
+    pub fn create<T>(&self, t: T)
     where
-        F: FnOnce() + Send + 'static,
+        T: FnOnce() + Send + 'static,
     {
-        let t = Box::new(f);
-
-        self.tx.send(Signal::CreateTask(t)).unwrap();
+        self.tx.send(Signal::CreateTask(Box::new(t))).unwrap();
     }
 }
 
-impl Drop for TaskPool {
+// Drops channels when an error occurs
+impl Drop for Scheduler {
     fn drop(&mut self) {
-        // send signal to workers to terminate task
+        // send signal to workers to terminate their task
         for _ in &self.workers {
             self.tx.send(Signal::TerminateTask).unwrap();
         }

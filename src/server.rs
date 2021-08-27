@@ -4,7 +4,7 @@ use crate::logger::logger;
 // use std::convert::TryFrom;
 use chrono::prelude::Utc;
 // use chrono::Duration;
-use httparse;
+// use httparse;
 use std::fs;
 use std::io::prelude::*;
 use std::io::Read;
@@ -61,7 +61,7 @@ fn handle_request(mut stream: TcpStream) {
     let date = Utc::now();
     let mut buffer = [0; 1024];
 
-    stream.read(&mut buffer).unwrap();
+    stream.read_exact(&mut buffer).unwrap();
 
     let mut headers = [httparse::EMPTY_HEADER; 64];
     let mut req = httparse::Request::new(&mut headers);
@@ -98,18 +98,11 @@ fn handle_request(mut stream: TcpStream) {
         body,
     );
 
-    stream.write(response.as_bytes()).unwrap();
+    stream.write_all(response.as_bytes()).unwrap();
 
     let diff = Utc::now() - date;
 
-    logger(
-        date,
-        &method,
-        &path,
-        &version,
-        &status,
-        diff.num_milliseconds(),
-    );
+    logger(date, method, path, version, status, diff.num_milliseconds());
 
     stream.flush().unwrap();
 }

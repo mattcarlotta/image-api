@@ -25,7 +25,7 @@ impl Scheduler {
     // * channels: usize
     //
     pub fn new<'a>(channels: usize) -> Result<Self, &'a str> {
-        if channels <= 0 {
+        if channels < 1 {
             return Err("You must specify the maximum number of channels to create.");
         }
 

@@ -1,3 +1,7 @@
+extern crate httparse;
+
+extern crate chrono;
+
 use std::process::exit;
 
 // use router::Router;
@@ -6,6 +10,7 @@ use server::Server;
 
 mod connections;
 //mod router;
+mod logger;
 mod server;
 
 fn main() {

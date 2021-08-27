@@ -1,5 +1,10 @@
 use crate::connections::Scheduler;
+use crate::logger::logger;
+
 // use std::convert::TryFrom;
+use chrono::prelude::Utc;
+// use chrono::Duration;
+use httparse;
 use std::fs;
 use std::io::prelude::*;
 use std::io::Read;
@@ -53,31 +58,56 @@ impl<'a> Server<'a> {
 
 // TODO Move this into it a Router
 fn handle_request(mut stream: TcpStream) {
+    let date = Utc::now();
     let mut buffer = [0; 1024];
 
     stream.read(&mut buffer).unwrap();
 
-    let get = b"GET / HTTP/1.1\r\n";
-    let sleep = b"GET /sleep HTTP/1.1\r\n";
+    let mut headers = [httparse::EMPTY_HEADER; 64];
+    let mut req = httparse::Request::new(&mut headers);
+    let parsed_req = req.parse(&buffer).unwrap();
 
-    let (status, filename) = if buffer.starts_with(get) {
-        ("HTTP/1.1 200 OK", "hello.html")
-    } else if buffer.starts_with(sleep) {
-        thread::sleep(Duration::from_secs(5));
-        ("HTTP/1.1 200 OK", "hello.html")
+    if parsed_req.is_partial() {};
+
+    let path = req.path.unwrap();
+    let method = req.method.unwrap();
+    let version: &str = if req.version.unwrap() == 1 {
+        "1.1"
     } else {
-        ("HTTP/1.1 404 NOT FOUND", "404.html")
+        "2"
+    };
+
+    let (status, filename) = match path {
+        "/" => ("200 OK", "hello.html"),
+        "/sleep" => {
+            thread::sleep(Duration::from_secs(5));
+            ("200 OK", "hello.html")
+        }
+        _ => ("404 Not Found", "404.html"),
     };
     let body = fs::read_to_string(filename).unwrap();
 
     let response = format!(
-        "{}\r\nContent-Length: {}\r\n\r\n{}",
-        status,
+        "HTTP/{} {}\r\nContent-Length: {}\r\n\r\n{}",
+        &version,
+        &status,
         body.len(),
         body,
     );
 
     stream.write(response.as_bytes()).unwrap();
+
+    let diff = Utc::now() - date;
+    // TODO Add response status code
+    // [August 26th 2021, 9:49:17 pm] - GET / HTTP/1.1 ???
+    logger(
+        date,
+        &method,
+        &path,
+        &version,
+        &status,
+        diff.num_milliseconds(),
+    );
 
     stream.flush().unwrap();
 }

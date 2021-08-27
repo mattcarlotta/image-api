@@ -67,7 +67,10 @@ fn handle_request(mut stream: TcpStream) {
     let mut req = httparse::Request::new(&mut headers);
     let parsed_req = req.parse(&buffer).unwrap();
 
-    if parsed_req.is_partial() {};
+    if parsed_req.is_partial() {
+        // TODO This should default to 404 not found
+        panic!("The request is invalid!");
+    };
 
     let path = req.path.unwrap();
     let method = req.method.unwrap();
@@ -98,8 +101,7 @@ fn handle_request(mut stream: TcpStream) {
     stream.write(response.as_bytes()).unwrap();
 
     let diff = Utc::now() - date;
-    // TODO Add response status code
-    // [August 26th 2021, 9:49:17 pm] - GET / HTTP/1.1 ???
+
     logger(
         date,
         &method,

@@ -19,11 +19,11 @@ pub struct Scheduler {
 }
 
 impl Scheduler {
-    // Initializes a connection pool to hand-off requests to a Worker
-    //
-    // Arguments:
-    // * channels: usize
-    //
+    /// Initializes a connection pool to hand-off requests to a `Worker`
+    ///
+    /// Arguments:
+    /// * channels: usize
+    ///
     pub fn new<'a>(channels: usize) -> Result<Self, &'a str> {
         if channels < 1 {
             return Err("You must specify the maximum number of channels to create.");
@@ -42,7 +42,7 @@ impl Scheduler {
         Ok(Scheduler { workers, tx })
     }
 
-    // Generates a new task by sending it to a Worker
+    /// Generates a new task by sending it to a Worker
     pub fn create<T>(&self, t: T)
     where
         T: FnOnce() + Send + 'static,

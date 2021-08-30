@@ -7,12 +7,12 @@ pub struct Worker {
 }
 
 impl Worker {
-    // Accepts tasks from the Scheduler and conditionally invokes them based upon their Signal
-    //
-    // Arguments:
-    // * id: usize
-    // * rx: PendingTasks
-    //
+    /// Accepts tasks from the Scheduler and conditionally invokes them based upon their Signal
+    ///
+    /// Arguments:
+    /// * id: usize
+    /// * rx: PendingTasks
+    ///
     pub fn new(id: usize, rx: PendingTasks) -> Self {
         let channel = spawn(move || loop {
             let signal = rx.lock().unwrap().recv().unwrap();

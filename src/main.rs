@@ -11,7 +11,6 @@ use server::Server;
 mod connections;
 mod http;
 //mod router;
-mod logger;
 mod server;
 
 fn main() {

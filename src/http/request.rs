@@ -26,15 +26,10 @@ impl<'a> Request<'a> {
         let mut req = httparse::Request::new(&mut headers);
         let (path, method) = match req.parse(buffer) {
             Ok(r) => {
-                let path = match req.path {
-                    Some(p) => p,
-                    None => "",
-                };
-                let method = match req.method {
-                    Some(m) => m,
-                    None => "",
-                };
+                let path = req.path.unwrap_or("");
+                let method = req.method.unwrap_or("");
                 let method = Method::from_str(method).unwrap();
+
                 if r.is_partial() || path.is_empty() || method == Method::INVALIDMETHOD {
                     return Response::new(StatusCode::NotImplemented, method, path, body);
                 };

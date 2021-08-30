@@ -9,6 +9,7 @@ use server::Server;
 //use std::env;
 
 mod connections;
+mod http;
 //mod router;
 mod logger;
 mod server;

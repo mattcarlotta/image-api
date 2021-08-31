@@ -6,7 +6,7 @@ use std::net::TcpStream;
 pub struct Router;
 
 impl Router {
-  /// Attempts to parse `TcpStream` as a `Request` and sends back a `Response` to the client
+  /// Attempts to parse a `TcpStream` to a `Request` and sends back a `Response` to the client
   ///
   /// Arguments:
   /// * stream: TcpStream
@@ -17,10 +17,6 @@ impl Router {
 
     stream.read(&mut buffer).unwrap();
 
-    let response = Request::parse(&buffer);
-
-    if let Err(e) = response.send(&mut stream, timestamp) {
-      panic!("Failed to send response: {}", e);
-    }
+    Request::parse(&buffer).send(stream, timestamp);
   }
 }

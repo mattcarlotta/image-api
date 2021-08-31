@@ -1,9 +1,6 @@
-use super::{Method, Response, StatusCode};
-use std::fs;
+use super::{bad_req_file, Method, Response, RouteHandler, StatusCode};
 use std::str;
 use std::str::FromStr;
-use std::thread;
-use std::time::Duration;
 
 #[derive(Debug)]
 pub struct Request<'a> {
@@ -21,40 +18,34 @@ impl<'a> Request<'a> {
     ///
     /// Returns a `Response` that contains a `status_code`, `method` and `path`
     pub fn parse(buffer: &'a [u8]) -> Response {
-        let body = fs::read_to_string("400.html").unwrap();
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);
+
+        // attempt to parse the path and method from the incoming request header
         let (path, method) = match req.parse(buffer) {
             Ok(r) => {
                 let path = req.path.unwrap_or("");
                 let method = req.method.unwrap_or("");
                 let method = Method::from_str(method).unwrap();
 
+                // if the request/path/method are invalid return a generic bad request document
                 if r.is_partial() || path.is_empty() || method == Method::INVALIDMETHOD {
-                    return Response::new(StatusCode::NotImplemented, method, path, body);
+                    return Response::new(StatusCode::BadRequest, method, path, bad_req_file());
                 };
 
                 (path, method)
             }
             Err(_) => {
-                return Response::new(StatusCode::BadRequest, Method::INVALIDMETHOD, "", body)
+                return Response::new(
+                    StatusCode::BadRequest,
+                    Method::INVALIDMETHOD,
+                    "",
+                    bad_req_file(),
+                )
             }
         };
 
-        // TODO Hand this off to RouteHandler
-        let (status_code, filename) = match path {
-            "/" => (StatusCode::Ok, "hello.html"),
-            "/sleep" => {
-                thread::sleep(Duration::from_secs(5));
-                (StatusCode::Ok, "hello.html")
-            }
-            _ => (StatusCode::NotFound, "404.html"),
-        };
-
-        let body = match fs::read_to_string(filename) {
-            Ok(b) => b,
-            Err(_) => body,
-        };
+        let (status_code, body) = RouteHandler::delegater(&method, path);
 
         Response::new(status_code, method, path, body)
     }

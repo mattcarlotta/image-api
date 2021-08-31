@@ -1,6 +1,7 @@
 use super::{Method, StatusCode};
 use chrono::prelude::{DateTime, Utc};
-use std::io::Write;
+use std::io::prelude::Write;
+use std::net::TcpStream;
 
 #[derive(Debug)]
 pub struct Response<'a> {
@@ -28,29 +29,22 @@ impl<'a> Response<'a> {
         }
     }
 
-    /// Attempts to write a Response to a TcpStream and logs the result to the terminal
+    /// Attempts to write a `Response` to a `TcpStream` and logs the result to the terminal
     ///
     /// Arguments:
-    /// * stream: &mut impl Write
+    /// * stream: TcpStream
     /// * timestamp:  DateTime<Utc>
     ///
-    pub fn send(mut self, stream: &mut impl Write, timestamp: DateTime<Utc>) -> Result<(), String> {
-        let error = match write!(
-            stream,
+    pub fn send(&self, mut stream: TcpStream, timestamp: DateTime<Utc>) {
+        let response = format!(
             "HTTP/1.1 {} {}\r\nContent-Length: {}\r\n\r\n{}",
             self.status_code,
             self.status_code.parse(),
             self.body.len(),
             self.body
-        ) {
-            Ok(_) => None,
-            Err(e) => Some(e.to_string()),
-        };
+        );
 
-        // set status to 500 if the response fails to be written
-        if !error.is_none() {
-            self.status_code = StatusCode::ServerError
-        };
+        stream.write_all(response.as_bytes()).unwrap();
 
         println!(
             "[{}] - {} {} HTTP/1.1 {} {}ms",
@@ -61,10 +55,6 @@ impl<'a> Response<'a> {
             (Utc::now() - timestamp).num_milliseconds()
         );
 
-        if !error.is_none() {
-            return Err(error.unwrap());
-        }
-
-        Ok(())
+        stream.flush().unwrap();
     }
 }

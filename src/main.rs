@@ -16,6 +16,9 @@ mod server;
 fn main() {
     //let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
     //let path = env::var("PUBLIC_PATH").unwrap_or(default_path);
+    if std::env::var("RUST_LIB_BACKTRACE").is_err() {
+        std::env::set_var("RUST_LIB_BACKTRACE", "1")
+    }
 
     // TODO Pull address and port from env or fallback
     if let Err(e) = Server::new("127.0.0.1", 5000).listen() {

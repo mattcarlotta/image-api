@@ -26,7 +26,7 @@ impl Scheduler {
     ///
     pub fn new<'a>(channels: usize) -> Result<Self, &'a str> {
         if channels < 1 {
-            return Err("You must specify the maximum number of channels to create.");
+            return Err("You must specify a number of channels, greater than 0, to create.");
         }
 
         let (tx, rx) = channel();
@@ -42,12 +42,14 @@ impl Scheduler {
         Ok(Scheduler { workers, tx })
     }
 
-    /// Generates a new task by sending it to a Worker
+    /// Generates a new task by sending it to a `Worker`
     pub fn create<T>(&self, t: T)
     where
         T: FnOnce() + Send + 'static,
     {
-        self.tx.send(Signal::CreateTask(Box::new(t))).unwrap();
+        let task = Box::new(t);
+
+        self.tx.send(Signal::CreateTask(task)).unwrap();
     }
 }
 

@@ -7,7 +7,7 @@ pub struct Worker {
 }
 
 impl Worker {
-    /// Accepts tasks from the Scheduler and conditionally invokes them based upon their Signal
+    /// Accepts incoming tasks from the `Scheduler` and conditionally invokes them based upon their `Signal`
     ///
     /// Arguments:
     /// * id: usize

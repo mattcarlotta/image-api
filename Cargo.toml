@@ -7,4 +7,5 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4"
+chunked_transfer = "1.4.0"
 httparse = "1.5.1"

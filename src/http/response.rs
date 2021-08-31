@@ -1,4 +1,4 @@
-use super::{Method, StatusCode};
+use super::{ContentType, Method, ResponseBody, StatusCode};
 use chrono::prelude::{DateTime, Utc};
 use std::io::prelude::Write;
 use std::net::TcpStream;
@@ -7,7 +7,8 @@ use std::net::TcpStream;
 pub struct Response<'a> {
     pub status_code: StatusCode,
     pub method: Method,
-    body: String,
+    pub content_type: ContentType,
+    body: ResponseBody,
     pub path: &'a str,
 }
 
@@ -20,11 +21,18 @@ impl<'a> Response<'a> {
     /// * path: &'a str
     /// * body: String
     ///
-    pub fn new(status_code: StatusCode, method: Method, path: &'a str, body: String) -> Self {
+    pub fn new(
+        status_code: StatusCode,
+        method: Method,
+        path: &'a str,
+        content_type: ContentType,
+        body: ResponseBody,
+    ) -> Self {
         Self {
             status_code,
             method,
             body,
+            content_type,
             path,
         }
     }
@@ -36,15 +44,39 @@ impl<'a> Response<'a> {
     /// * timestamp:  DateTime<Utc>
     ///
     pub fn send(&self, mut stream: TcpStream, timestamp: DateTime<Utc>) {
-        let response = format!(
-            "HTTP/1.1 {} {}\r\nContent-Length: {}\r\n\r\n{}",
-            self.status_code,
-            self.status_code.parse(),
-            self.body.len(),
-            self.body
-        );
+        let body = match &self.body {
+            ResponseBody::Chunked(value) => value.clone(),
+            _ => vec![0; 24],
+        };
 
-        stream.write_all(response.as_bytes()).unwrap();
+        let response = format!(
+               "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nTransfer-Encoding: chunked\r\n\r\n",
+                self.status_code,
+                self.status_code.parse(),
+                Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
+                self.content_type,
+                // body.len(),
+              //  body
+            );
+
+        let mut r = response.to_string().into_bytes();
+        r.extend(body);
+
+        // let headers = [
+        // "HTTP/1.1 200 OK",
+        // "Content-type: image/png",
+        // "Transfer-Encoding: chunked",
+        //   "\r\n",
+        // ];
+        //let mut response = headers.join("\r\n").to_string().into_bytes();
+        //response.extend(body);
+
+        //match stream.write(&response) {
+        //    Ok(_) => println!("Response sent"),
+        //    Err(e) => println!("Failed sending response: {}", e),
+        // }
+
+        stream.write_all(&r).unwrap();
 
         println!(
             "[{}] - {} {} HTTP/1.1 {} {}ms",

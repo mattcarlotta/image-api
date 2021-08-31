@@ -37,7 +37,7 @@ impl Method {
 impl FromStr for Method {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Self, ()> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "CONNECT" => Self::CONNECT,
             "DELETE" => Self::DELETE,

@@ -1,4 +1,4 @@
-use super::{bad_req_file, Method, Response, RouteHandler, StatusCode};
+use super::{bad_req_file, ContentType, Method, Response, RouteHandler, StatusCode};
 use std::str;
 use std::str::FromStr;
 
@@ -30,7 +30,13 @@ impl<'a> Request<'a> {
 
                 // if the request/path/method are invalid return a generic bad request document
                 if r.is_partial() || path.is_empty() || method == Method::INVALIDMETHOD {
-                    return Response::new(StatusCode::BadRequest, method, path, bad_req_file());
+                    return Response::new(
+                        StatusCode::BadRequest,
+                        method,
+                        path,
+                        ContentType::HTML,
+                        bad_req_file(),
+                    );
                 };
 
                 (path, method)
@@ -40,13 +46,14 @@ impl<'a> Request<'a> {
                     StatusCode::BadRequest,
                     Method::INVALIDMETHOD,
                     "",
+                    ContentType::HTML,
                     bad_req_file(),
                 )
             }
         };
 
-        let (status_code, body) = RouteHandler::delegater(&method, path);
+        let (status_code, content_type, body) = RouteHandler::delegater(&method, path);
 
-        Response::new(status_code, method, path, body)
+        Response::new(status_code, method, path, content_type, body)
     }
 }

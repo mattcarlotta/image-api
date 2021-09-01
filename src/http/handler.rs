@@ -2,7 +2,6 @@ use super::{
     bad_req_file, file_not_found, server_error_file, ContentType, Method, ResponseBody, StatusCode,
 };
 use chunked_transfer::Encoder;
-use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
@@ -80,11 +79,5 @@ impl RouteHandler {
         };
 
         (status_code, content_type, body)
-    }
-}
-
-impl Display for ResponseBody {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{:?}", self)
     }
 }

@@ -26,19 +26,20 @@ impl<'a> Request<'a> {
             Ok(r) => {
                 let path = req.path.unwrap_or("");
                 let method = req.method.unwrap_or("");
-                let method = Method::from_str(method).unwrap();
+                let mut method = Method::from_str(method).unwrap();
 
-                // if the request/path/method are invalid return a generic bad request document
-                if r.is_partial() || path.is_empty() || method == Method::INVALIDMETHOD {
-                    (path, Method::INVALIDMETHOD)
-                } else {
-                    (path, method)
+                // if the request/path are invalid sets method to invalid
+                // which will be caught below
+                if r.is_partial() || path.is_empty() {
+                    method = Method::INVALIDMETHOD;
                 }
+
+                (path, method)
             }
             Err(_) => ("", Method::INVALIDMETHOD),
         };
 
-        if method == Method::INVALIDMETHOD {
+        if !method.is_valid() {
             return Response::new(
                 StatusCode::BadRequest,
                 method,

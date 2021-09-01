@@ -19,7 +19,7 @@ impl Method {
     /// Common HTTP Request Methods
     /// `GET`, `OPTIONS`, `POST`, `PUT` ...etc
     pub fn as_str(&self) -> &str {
-        match *self {
+        match self {
             Method::CONNECT => "CONNECT",
             Method::DELETE => "DELETE",
             Method::GET => "GET",
@@ -30,6 +30,13 @@ impl Method {
             Method::PUT => "PUT",
             Method::TRACE => "TRACE",
             _ => "Invalid Method",
+        }
+    }
+
+    pub fn is_valid(&self) -> bool {
+        match self {
+            Method::INVALIDMETHOD => false,
+            _ => true,
         }
     }
 }

@@ -56,8 +56,7 @@ impl<'a> Response<'a> {
     /// Attempts to write a `Response` to a `TcpStream` and logs the result to the terminal
     ///
     /// Arguments:
-    /// * stream: TcpStream
-    /// * timestamp:  DateTime<Utc>
+    /// * body: ResponseType
     ///
     pub fn send(&mut self, body: ResponseType) -> () {
         let (body, headers) = ResponseType::parse(body);
@@ -92,17 +91,15 @@ impl<'a> Response<'a> {
             (Utc::now() - self.timestamp).num_milliseconds()
         );
 
-        self.stream.flush().unwrap();
-
-        ()
+        self.stream.flush().unwrap()
     }
 
     pub fn set_content(&mut self, s: &str) {
-        self.content_type = ContentType::set(s);
+        self.content_type = ContentType::convert(s);
     }
 
     pub fn set_status(&mut self, s: u16) {
-        self.status_code = StatusCode::set(s);
+        self.status_code = StatusCode::convert(s);
     }
 }
 

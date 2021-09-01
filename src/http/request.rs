@@ -9,6 +9,11 @@ pub struct Request<'a> {
 }
 
 impl<'a> Request<'a> {
+    /// Parses headers from the incoming request buffer
+    ///
+    /// Arguments:
+    /// * buffer: [u8]
+    ///
     pub fn new(buffer: &'a [u8]) -> Self {
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);
@@ -21,7 +26,7 @@ impl<'a> Request<'a> {
                 let mut method = Method::from_str(method).unwrap();
 
                 // if the request/path are invalid sets method to invalid
-                // which will be caught in RouterHandler delegater
+                // which will be caught in the Router
                 if r.is_partial() || path.is_empty() {
                     method = Method::INVALIDMETHOD;
                 }

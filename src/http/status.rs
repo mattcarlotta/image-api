@@ -22,6 +22,7 @@ impl StatusCode {
         }
     }
 
+    /// Converts self into a string slice
     pub fn code(&self) -> &str {
         match self {
             Self::Ok => "200",
@@ -32,7 +33,8 @@ impl StatusCode {
         }
     }
 
-    pub fn set(int: u16) -> StatusCode {
+    /// Converts an int to `StatusCode`
+    pub fn convert(int: u16) -> StatusCode {
         match int {
             200 => StatusCode::Ok,
             400 => StatusCode::BadRequest,

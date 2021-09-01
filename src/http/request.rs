@@ -30,27 +30,23 @@ impl<'a> Request<'a> {
 
                 // if the request/path/method are invalid return a generic bad request document
                 if r.is_partial() || path.is_empty() || method == Method::INVALIDMETHOD {
-                    return Response::new(
-                        StatusCode::BadRequest,
-                        method,
-                        path,
-                        ContentType::HTML,
-                        bad_req_file(),
-                    );
-                };
-
-                (path, method)
+                    (path, Method::INVALIDMETHOD)
+                } else {
+                    (path, method)
+                }
             }
-            Err(_) => {
-                return Response::new(
-                    StatusCode::BadRequest,
-                    Method::INVALIDMETHOD,
-                    "",
-                    ContentType::HTML,
-                    bad_req_file(),
-                )
-            }
+            Err(_) => ("", Method::INVALIDMETHOD),
         };
+
+        if method == Method::INVALIDMETHOD {
+            return Response::new(
+                StatusCode::BadRequest,
+                method,
+                path,
+                ContentType::HTML,
+                bad_req_file(),
+            );
+        }
 
         let (status_code, content_type, body) = RouteHandler::delegater(&method, path);
 

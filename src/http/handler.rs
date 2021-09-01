@@ -1,4 +1,6 @@
-use super::{file_not_found, server_error_file, ContentType, Method, ResponseBody, StatusCode};
+use super::{
+    bad_req_file, file_not_found, server_error_file, ContentType, Method, ResponseBody, StatusCode,
+};
 use chunked_transfer::Encoder;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::fs;
@@ -39,7 +41,7 @@ impl RouteHandler {
                 _ => {
                     // TODO - Make sure requested image size doesn't extend beyond actual image dimensions
                     // open requested image
-                    let mut existing_file = match File::open("placeholder2.png") {
+                    let mut existing_file = match File::open("placeholder.png") {
                         Ok(file) => file,
                         Err(_) => {
                             return (StatusCode::NotFound, ContentType::HTML, file_not_found())
@@ -50,8 +52,8 @@ impl RouteHandler {
                     let mut buf = Vec::new();
                     match existing_file.read_to_end(&mut buf) {
                         Ok(vec) => vec,
-                        Err(reason) => {
-                            println!("Unable to read the contents of the image: {}", reason);
+                        Err(e) => {
+                            println!("Unable to read the contents of the image: {}", e);
 
                             return (
                                 StatusCode::ServerError,
@@ -74,7 +76,7 @@ impl RouteHandler {
                     )
                 }
             },
-            _ => (StatusCode::NotFound, ContentType::HTML, file_not_found()),
+            _ => (StatusCode::BadRequest, ContentType::HTML, bad_req_file()),
         };
 
         (status_code, content_type, body)

@@ -37,9 +37,9 @@ impl RouteHandler {
                     (StatusCode::Ok, ContentType::HTML, ResponseBody::Text(body))
                 }
                 _ => {
-                    // TODO - Make sure requested image size doesn'p extend beyond actual image dimensions
+                    // TODO - Make sure requested image size doesn't extend beyond actual image dimensions
                     // open requested image
-                    let mut existing_file = match File::open("placeholder.png") {
+                    let mut existing_file = match File::open("placeholder2.png") {
                         Ok(file) => file,
                         Err(_) => {
                             return (StatusCode::NotFound, ContentType::HTML, file_not_found())
@@ -63,7 +63,7 @@ impl RouteHandler {
 
                     let mut body = Vec::new();
                     {
-                        let mut encoder = Encoder::with_chunks_size(&mut body, 1024);
+                        let mut encoder = Encoder::with_chunks_size(&mut body, 8192);
                         encoder.write_all(&buf).unwrap();
                     }
 
@@ -74,15 +74,7 @@ impl RouteHandler {
                     )
                 }
             },
-            _ => {
-                let body = fs::read_to_string("404.html").unwrap();
-
-                (
-                    StatusCode::NotFound,
-                    ContentType::HTML,
-                    ResponseBody::Text(body),
-                )
-            }
+            _ => (StatusCode::NotFound, ContentType::HTML, file_not_found()),
         };
 
         (status_code, content_type, body)

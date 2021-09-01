@@ -4,18 +4,34 @@ use std::io::prelude::Write;
 use std::net::TcpStream;
 
 #[derive(Debug)]
+pub enum ResponseBody {
+    Chunked(Vec<u8>),
+    Text(String),
+}
+
+impl ResponseBody {
+    /// Parses a `ResponseBody` to a tuple of: `Vec<u8>` and `String`
+    pub fn parse(self) -> (Vec<u8>, String) {
+        match self {
+            ResponseBody::Chunked(body) => {
+                (body.to_owned(), "Transfer-Encoding: chunked".to_string())
+            }
+            ResponseBody::Text(body) => (
+                body.to_owned().into_bytes(),
+                format!("Content-Length: {}", body.len()),
+            ),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Response<'a> {
     pub status_code: StatusCode,
     pub method: Method,
     pub content_type: ContentType,
-    body: ResponseBody,
     pub path: &'a str,
-}
-
-#[derive(Debug)]
-pub enum ResponseBody {
-    Chunked(Vec<u8>),
-    Text(String),
+    pub headers: String,
+    body: Vec<u8>,
 }
 
 impl<'a> Response<'a> {
@@ -34,12 +50,15 @@ impl<'a> Response<'a> {
         content_type: ContentType,
         body: ResponseBody,
     ) -> Self {
+        let (body, headers) = ResponseBody::parse(body);
+
         Self {
             status_code,
             method,
-            body,
-            content_type,
             path,
+            content_type,
+            headers,
+            body,
         }
     }
 
@@ -50,34 +69,16 @@ impl<'a> Response<'a> {
     /// * timestamp:  DateTime<Utc>
     ///
     pub fn send(&self, mut stream: TcpStream, timestamp: DateTime<Utc>) {
-        let commonheaders = format!(
-            "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\n",
+        let mut response = format!(
+            "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\n{}\r\n\r\n",
             self.status_code,
             self.status_code.parse(),
             Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
-            self.content_type
-        );
+            self.content_type,
+            self.headers,
+        ).into_bytes();
 
-        let response = match &self.body {
-            ResponseBody::Chunked(body) => {
-                let mut response =
-                    format!("{}Transfer-Encoding: chunked\r\n\r\n", commonheaders).into_bytes();
-
-                response.extend(body);
-
-                response
-            }
-            ResponseBody::Text(body) => {
-                let response = format!(
-                    "{}Content-Length: {}\r\n\r\n{}",
-                    commonheaders,
-                    body.len(),
-                    body
-                );
-
-                response.into_bytes()
-            }
-        };
+        response.extend(&self.body);
 
         stream.write_all(&response).unwrap();
 
@@ -93,30 +94,3 @@ impl<'a> Response<'a> {
         stream.flush().unwrap();
     }
 }
-
-// let response = format!(
-//        "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\nTransfer-Encoding: chunked\r\n\r\n",
-//         self.status_code,
-//         self.status_code.parse(),
-//         Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
-//         self.content_type,
-//         // body.len(),
-//       //  body
-//     );
-
-// let mut r = response.to_string().into_bytes();
-// r.extend(body);
-
-// let headers = [
-// "HTTP/1.1 200 OK",
-// "Content-type: image/png",
-// "Transfer-Encoding: chunked",
-//   "\r\n",
-// ];
-//let mut response = headers.join("\r\n").to_string().into_bytes();
-//response.extend(body);
-
-//match stream.write(&response) {
-//    Ok(_) => println!("Response sent"),
-//    Err(e) => println!("Failed sending response: {}", e),
-// }

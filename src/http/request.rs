@@ -16,7 +16,7 @@ impl<'a> Request<'a> {
     /// Arguments:
     /// * buffer: &[u8: 2]
     ///
-    /// Returns a `Response` that contains a `status_code`, `method` and `path`
+    /// Returns a `Response` that contains a `status_code`, `method`, `path`, `content_type` and `body`
     pub fn parse(buffer: &'a [u8]) -> Response {
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);

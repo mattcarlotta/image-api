@@ -6,7 +6,7 @@ pub enum StatusCode {
     BadRequest,
     NotFound,
     ServerError,
-    // NotImplemented = 501,
+    NotImplemented = 501,
 }
 
 impl StatusCode {
@@ -18,7 +18,7 @@ impl StatusCode {
             Self::BadRequest => "Bad Request",
             Self::NotFound => "Not Found",
             Self::ServerError => "Internal Server Error",
-            // Self::NotImplemented => "Not Implemented",
+            Self::NotImplemented => "Not Implemented",
         }
     }
 
@@ -28,6 +28,17 @@ impl StatusCode {
             Self::BadRequest => "400",
             Self::NotFound => "404",
             Self::ServerError => "500",
+            Self::NotImplemented => "501",
+        }
+    }
+
+    pub fn set(int: u16) -> StatusCode {
+        match int {
+            200 => StatusCode::Ok,
+            400 => StatusCode::BadRequest,
+            404 => StatusCode::NotFound,
+            500 => StatusCode::ServerError,
+            _ => StatusCode::NotImplemented,
         }
     }
 }

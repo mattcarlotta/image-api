@@ -32,7 +32,7 @@ impl<'a> Server<'a> {
         for stream in listener.incoming() {
             match stream {
                 Ok(stream) => scheduler.create(|| {
-                    Router::handle_request(stream);
+                    Router::controller(stream);
                 }),
                 Err(e) => println!("Unable to handle request: {}", e),
             }

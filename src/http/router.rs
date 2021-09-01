@@ -1,4 +1,5 @@
-use crate::http::Request;
+use super::{Method, Request, Response};
+use crate::controllers;
 use chrono::prelude::Utc;
 use std::io::Read;
 use std::net::TcpStream;
@@ -6,19 +7,33 @@ use std::net::TcpStream;
 pub struct Router;
 
 impl Router {
-    /// Attempts to parse a `TcpStream` to a `Request` and sends back a `Response` to the client
+    /// Attempts to parse a `TcpStream` to a `Request` and `Response`
+    /// and sends back a `Response` to the client
     ///
     /// Arguments:
     /// * stream: TcpStream
     ///
-    pub fn handle_request(mut stream: TcpStream) {
+    pub fn controller(mut stream: TcpStream) -> () {
         let timestamp = Utc::now();
         let mut buffer = [0; 1024];
 
         stream.read(&mut buffer).unwrap();
 
-        let res = Request::parse(&buffer);
+        let req = Request::new(&buffer);
 
-        res.send(stream, timestamp);
+        let res = Response::new(timestamp, &req, &mut stream);
+
+        if !req.method.is_valid() {
+            return controllers::badrequest(req, res);
+        }
+
+        match req.method {
+            Method::GET => match req.path {
+                "/" => controllers::hello(req, res),
+                "/sleep" => controllers::sleep(req, res),
+                _ => controllers::image(req, res),
+            },
+            _ => controllers::notfound(req, res),
+        }
     }
 }

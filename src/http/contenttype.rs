@@ -14,6 +14,7 @@ pub enum ContentType {
     SVG,
     ICO,
     HTML,
+    INVALID,
 }
 
 impl ContentType {
@@ -29,6 +30,22 @@ impl ContentType {
             ContentType::ICO => "image/ico",
             ContentType::HTML => "text/html; charset=utf-8",
             _ => "",
+        }
+    }
+
+    pub fn set(s: &str) -> ContentType {
+        match s {
+            ".png" => ContentType::PNG,
+            ".gif" => ContentType::GIF,
+            ".bmp" => ContentType::BMP,
+            ".jpg" => ContentType::JPG,
+            ".jpeg" => ContentType::JPEG,
+            ".webp" => ContentType::WEBP,
+            ".avif" => ContentType::AVIF,
+            ".svg" => ContentType::SVG,
+            ".ico" => ContentType::ICO,
+            ".html" => ContentType::HTML,
+            _ => ContentType::INVALID,
         }
     }
 }

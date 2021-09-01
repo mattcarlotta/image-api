@@ -11,6 +11,7 @@ use server::Server;
 //use std::env;
 
 mod connections;
+mod controllers;
 mod http;
 //mod router;
 mod server;

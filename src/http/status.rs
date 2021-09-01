@@ -1,11 +1,11 @@
 use std::fmt::{Display, Formatter, Result};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub enum StatusCode {
-    Ok = 200,
-    BadRequest = 400,
-    NotFound = 404,
-    ServerError = 500,
+    Ok,
+    BadRequest,
+    NotFound,
+    ServerError,
     // NotImplemented = 501,
 }
 
@@ -21,10 +21,19 @@ impl StatusCode {
             // Self::NotImplemented => "Not Implemented",
         }
     }
+
+    pub fn code(&self) -> &str {
+        match self {
+            Self::Ok => "200",
+            Self::BadRequest => "400",
+            Self::NotFound => "404",
+            Self::ServerError => "500",
+        }
+    }
 }
 
 impl Display for StatusCode {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}", *self as u16)
+        write!(f, "{}", self.code())
     }
 }

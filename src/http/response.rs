@@ -26,11 +26,11 @@ impl ResponseBody {
 
 #[derive(Debug)]
 pub struct Response<'a> {
-    pub status_code: StatusCode,
-    pub method: Method,
-    pub content_type: ContentType,
-    pub path: &'a str,
-    pub headers: String,
+    status_code: StatusCode,
+    method: Method,
+    content_type: ContentType,
+    path: &'a str,
+    headers: String,
     body: Vec<u8>,
 }
 
@@ -69,14 +69,27 @@ impl<'a> Response<'a> {
     /// * timestamp:  DateTime<Utc>
     ///
     pub fn send(&self, mut stream: TcpStream, timestamp: DateTime<Utc>) {
-        let mut response = format!(
-            "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\n{}\r\n\r\n",
-            self.status_code,
-            self.status_code.parse(),
-            Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
-            self.content_type,
-            self.headers,
-        ).into_bytes();
+        let mut response = [
+            format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse()).as_str(),
+            "Server: rustybuckets/0.0.1",
+            format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT")).as_str(),
+            format!("Content-Type: {}", self.content_type).as_str(),
+            self.headers.as_str(),
+            "X-Content-Type-Options: nosniff",
+            "X-Frame-Options: DENY",
+            "\r\n",
+        ]
+        .join("\r\n")
+        .into_bytes();
+
+        //let mut response = format!(
+        //    "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\n{}\r\n\r\n",
+        //    self.status_code,
+        //    self.status_code.parse(),
+        //    Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
+        //    self.content_type,
+        //    self.headers,
+        //).into_bytes();
 
         response.extend(&self.body);
 

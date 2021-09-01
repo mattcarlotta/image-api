@@ -17,6 +17,8 @@ impl Router {
 
         stream.read(&mut buffer).unwrap();
 
-        Request::parse(&buffer).send(stream, timestamp);
+        let res = Request::parse(&buffer);
+
+        res.send(stream, timestamp);
     }
 }

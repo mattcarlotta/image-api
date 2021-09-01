@@ -5,7 +5,7 @@ pub enum StatusCode {
     Ok = 200,
     BadRequest = 400,
     NotFound = 404,
-    // ServerError = 500,
+    ServerError = 500,
     // NotImplemented = 501,
 }
 
@@ -17,7 +17,7 @@ impl StatusCode {
             Self::Ok => "OK",
             Self::BadRequest => "Bad Request",
             Self::NotFound => "Not Found",
-            // Self::ServerError => "Internal Server Error",
+            Self::ServerError => "Internal Server Error",
             // Self::NotImplemented => "Not Implemented",
         }
     }

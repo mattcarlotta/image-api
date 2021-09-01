@@ -19,9 +19,9 @@ impl Router {
 
         stream.read(&mut buffer).unwrap();
 
-        let req = Request::new(&buffer);
+        let req = Request::new(&buffer, timestamp);
 
-        let res = Response::new(timestamp, &req, &mut stream);
+        let res = Response::new(&req, &mut stream);
 
         if !req.method.is_valid() {
             return controllers::badrequest(req, res);

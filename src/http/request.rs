@@ -1,3 +1,5 @@
+use chrono::{DateTime, Utc};
+
 use super::Method;
 use std::str;
 use std::str::FromStr;
@@ -6,6 +8,7 @@ use std::str::FromStr;
 pub struct Request<'a> {
     pub method: Method,
     pub path: &'a str,
+    pub timestamp: DateTime<Utc>,
 }
 
 impl<'a> Request<'a> {
@@ -14,7 +17,7 @@ impl<'a> Request<'a> {
     /// Arguments:
     /// * buffer: [u8]
     ///
-    pub fn new(buffer: &'a [u8]) -> Self {
+    pub fn new(buffer: &'a [u8], timestamp: DateTime<Utc>) -> Self {
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);
 
@@ -36,6 +39,10 @@ impl<'a> Request<'a> {
             Err(_) => ("", Method::INVALIDMETHOD),
         };
 
-        Request { method, path }
+        Request {
+            method,
+            path,
+            timestamp,
+        }
     }
 }

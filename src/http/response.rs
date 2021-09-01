@@ -42,13 +42,13 @@ impl<'a> Response<'a> {
     /// * timestamp: DateTime
     /// * stream: TcpStream
     ///
-    pub fn new(timestamp: DateTime<Utc>, req: &Request<'a>, stream: &'a mut TcpStream) -> Self {
+    pub fn new(req: &Request<'a>, stream: &'a mut TcpStream) -> Self {
         Self {
             status_code: StatusCode::Ok,
             method: req.method,
             path: req.path,
             content_type: ContentType::HTML,
-            timestamp,
+            timestamp: req.timestamp,
             stream,
         }
     }

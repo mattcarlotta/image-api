@@ -69,11 +69,15 @@ impl<'a> Response<'a> {
     /// * timestamp:  DateTime<Utc>
     ///
     pub fn send(&self, mut stream: TcpStream, timestamp: DateTime<Utc>) {
+        let header = format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse());
+        let date = format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"));
+        let ct = format!("Content-Type: {}", self.content_type);
+
         let mut response = [
-            format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse()).as_str(),
+            &header,
             "Server: rustybuckets/0.0.1",
-            format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT")).as_str(),
-            format!("Content-Type: {}", self.content_type).as_str(),
+            &date,
+            &ct,
             self.headers.as_str(),
             "X-Content-Type-Options: nosniff",
             "X-Frame-Options: DENY",

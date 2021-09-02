@@ -33,7 +33,7 @@ impl Router {
                 "/sleep" => controllers::sleep(req, res),
                 _ => controllers::image(req, res),
             },
-            _ => controllers::notfound(req, res),
+            _ => controllers::badrequest(req, res),
         }
     }
 }

@@ -9,15 +9,16 @@ use std::io::prelude::*;
 use std::path::PathBuf;
 
 #[derive(Debug)]
-pub struct RequestedImage {
+pub struct RequestedImage<'p> {
     pub content_type: Option<ContentType>,
     pub path: PathBuf,
     pub new_pathname: String,
     pub new_pathname_buf: PathBuf,
     pub ratio: u8,
+    pub ext: &'p str,
 }
 
-impl<'p, 'r> RequestedImage {
+impl<'p> RequestedImage<'p> {
     /// Initialize a new requested image that:
     /// * strips out any provided ratios within the stem -> filename_ratio -> filename
     /// * creates buffers from the stripped pathname and a potential new path (filename_ratio.ext)
@@ -40,6 +41,7 @@ impl<'p, 'r> RequestedImage {
 
         // retrieve file path to "static" folder => <rootdir><static><filename>.<ext>
         let filepath = get_file_path(filename);
+        let ext = path.extension().and_then(OsStr::to_str);
 
         // or assign pathname with ratio: <rootdir><filename>_<ratio>.<ext>
         let pathname = match ratio == 0 {
@@ -52,23 +54,17 @@ impl<'p, 'r> RequestedImage {
                     .expect(&format!("Image is missing stem"));
 
                 // retrieve image file stem => <ext>
-                let ext = &filepath
-                    .extension()
-                    .and_then(OsStr::to_str)
-                    .expect(&format!("Image is missing extension"));
-                format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, ext)
+                format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, &ext.unwrap())
             }
         };
 
         RequestedImage {
-            content_type: path
-                .extension()
-                .and_then(OsStr::to_str)
-                .and_then(ContentType::from_extension),
+            content_type: ext.and_then(ContentType::from_extension),
             path: get_file_path(&filepath),
             new_pathname: pathname.to_string(),
             new_pathname_buf: [&pathname].iter().collect(),
             ratio,
+            ext: ext.unwrap(),
         }
     }
 

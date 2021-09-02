@@ -1,12 +1,20 @@
-use crate::http::{Request, Response, ResponseType};
+use crate::http::{QueryString, Request, Response, ResponseType};
 use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
 use std::path::PathBuf;
 
 pub fn image(req: Request, mut res: Response) -> () {
-    // TODO Split path into PathBuf and ratio into Option<&str>
-    let path: PathBuf = [req.path].iter().collect();
-    let ratio = Some("0");
+    let mut path = req.path;
+    let mut query = QueryString::new();
+
+    // if a query is found, parse it and remove it from the path
+    if let Some(i) = path.find('?') {
+        query.parse(&req.path[i + 1..]);
+        path = &path[..i];
+    }
+
+    let path: PathBuf = [path].iter().collect();
+    let ratio = query.get("ratio");
 
     // ensure that path is a directory
     if path.extension().is_none() || path.as_os_str().is_empty() {
@@ -84,8 +92,10 @@ pub fn image(req: Request, mut res: Response) -> () {
     //.expect("Unable to retrieve image entry from cache.");
 
     // print!("Served requested image from cache.");
+    //
+    //
 
-    res.set_content(path.extension().unwrap().to_str().unwrap());
+    res.set_content(img.ext);
 
     return res.send(ResponseType::Chunked(body));
 }

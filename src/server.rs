@@ -26,8 +26,7 @@ impl<'a> Server<'a> {
         println!("Listening for requests on: {}", &host);
 
         let listener = TcpListener::bind(host).unwrap();
-        // TODO Change this hardcoded number to arg/num of cpus
-        let scheduler = Scheduler::new(8)?;
+        let scheduler = Scheduler::new();
 
         for stream in listener.incoming() {
             match stream {

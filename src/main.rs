@@ -1,5 +1,7 @@
 extern crate chunked_transfer;
 
+extern crate num_cpus;
+
 extern crate httparse;
 
 extern crate chrono;

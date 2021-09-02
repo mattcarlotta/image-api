@@ -32,20 +32,20 @@ impl ContentType {
         }
     }
 
-    /// Converts string slice into a `ContentType`
-    pub fn convert(s: &str) -> ContentType {
+    /// Conditionally returns a matching ContentType from extension
+    pub fn from_extension(s: &str) -> Option<ContentType> {
         match s {
-            ".png" => ContentType::PNG,
-            ".gif" => ContentType::GIF,
-            ".bmp" => ContentType::BMP,
-            ".jpg" => ContentType::JPG,
-            ".jpeg" => ContentType::JPEG,
-            ".webp" => ContentType::WEBP,
-            ".avif" => ContentType::AVIF,
-            ".svg" => ContentType::SVG,
-            ".ico" => ContentType::ICO,
-            ".html" => ContentType::HTML,
-            _ => ContentType::INVALID,
+            "png" => Some(ContentType::PNG),
+            "gif" => Some(ContentType::GIF),
+            "bmp" => Some(ContentType::BMP),
+            "jpg" => Some(ContentType::JPG),
+            "jpeg" => Some(ContentType::JPEG),
+            "webp" => Some(ContentType::WEBP),
+            "avif" => Some(ContentType::AVIF),
+            "svg" => Some(ContentType::SVG),
+            "ico" => Some(ContentType::ICO),
+            "html" => Some(ContentType::HTML),
+            _ => None,
         }
     }
 }

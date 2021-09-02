@@ -1,4 +1,12 @@
+macro_rules! relative {
+    ($path:expr) => {
+        std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/", $path))
+    };
+}
+
 extern crate chunked_transfer;
+
+extern crate image;
 
 extern crate num_cpus;
 
@@ -15,8 +23,9 @@ use server::Server;
 mod connections;
 mod controllers;
 mod http;
-//mod router;
+mod reqimage;
 mod server;
+mod utils;
 
 fn main() {
     //let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));

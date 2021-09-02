@@ -95,7 +95,7 @@ impl<'a> Response<'a> {
     }
 
     pub fn set_content(&mut self, s: &str) {
-        self.content_type = ContentType::convert(s);
+        self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::INVALID);
     }
 
     pub fn set_status(&mut self, s: u16) {

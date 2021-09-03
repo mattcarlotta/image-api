@@ -18,7 +18,6 @@ pub fn image(req: Request, res: Response) -> () {
 
     // ensure that path is a directory
     if path.extension().is_none() || path.as_os_str().is_empty() {
-        // res;
         return res.set_status(404).send(file_not_found());
     }
 
@@ -54,18 +53,14 @@ pub fn image(req: Request, res: Response) -> () {
     if !img.exists() {
         match img.save() {
             Ok(()) => (),
-            Err(_) => {
-                return res.set_status(500).send(server_error_file());
-            }
+            Err(_) => return res.set_status(500).send(server_error_file()),
         };
     }
 
     // read the original or new image and store its contents into cache
     let body = match img.read() {
         Ok(contents) => contents,
-        Err(_) => {
-            return res.set_status(500).send(server_error_file());
-        }
+        Err(_) => return res.set_status(500).send(server_error_file()),
     };
 
     // match img.read() {
@@ -85,5 +80,5 @@ pub fn image(req: Request, res: Response) -> () {
     //
     //
 
-    return res.set_content(img.ext).send(ResponseType::Chunked(body));
+    res.set_content(img.ext).send(ResponseType::Chunked(body))
 }

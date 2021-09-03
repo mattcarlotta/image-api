@@ -16,8 +16,7 @@ pub enum Method {
 }
 
 impl Method {
-    /// Common HTTP Request Methods
-    /// `GET`, `OPTIONS`, `POST`, `PUT` ...etc
+    /// Common HTTP request methods as string slices
     pub fn as_str(&self) -> &str {
         match self {
             Method::CONNECT => "CONNECT",
@@ -33,6 +32,7 @@ impl Method {
         }
     }
 
+    /// Determine if method is valid
     pub fn is_valid(&self) -> bool {
         match self {
             Method::INVALIDMETHOD => false,

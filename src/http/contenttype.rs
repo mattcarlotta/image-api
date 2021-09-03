@@ -33,6 +33,10 @@ impl ContentType {
     }
 
     /// Conditionally returns a matching ContentType from extension
+    ///
+    /// Arguments:
+    /// s : &str
+    ///
     pub fn from_extension(s: &str) -> Option<ContentType> {
         match s {
             "png" => Some(ContentType::PNG),

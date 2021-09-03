@@ -39,8 +39,7 @@ impl<'a> Response<'a> {
     ///
     /// Arguments:
     /// * req: Request
-    /// * timestamp: DateTime
-    /// * stream: TcpStream
+    /// * stream: &mut TcpStream
     ///
     pub fn new(req: &Request<'a>, stream: &'a mut TcpStream) -> Self {
         Self {
@@ -51,6 +50,28 @@ impl<'a> Response<'a> {
             timestamp: req.timestamp,
             stream,
         }
+    }
+
+    /// Replaces the default `content_type` with `Content-Type` from a string slice
+    ///
+    /// Arguments:
+    /// s: &str
+    ///
+    pub fn set_content(mut self, s: &str) -> Self {
+        self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::INVALID);
+
+        self
+    }
+
+    /// Replaces `status_code` with `StatusCode` from a `u16` integer
+    ///
+    /// Arguments:
+    /// * s: u16
+    ///
+    pub fn set_status(mut self, s: u16) -> Self {
+        self.status_code = StatusCode::convert(s);
+
+        self
     }
 
     /// Attempts to write a `Response` to a `TcpStream` and logs the result to the terminal
@@ -93,25 +114,4 @@ impl<'a> Response<'a> {
 
         self.stream.flush().unwrap()
     }
-
-    pub fn set_content(mut self, s: &str) -> Self {
-        self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::INVALID);
-
-        self
-    }
-
-    pub fn set_status(mut self, s: u16) -> Self {
-        self.status_code = StatusCode::convert(s);
-
-        self
-    }
 }
-
-//let mut response = format!(
-//    "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\n{}\r\n\r\n",
-//    self.status_code,
-//    self.status_code.parse(),
-//    Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
-//    self.content_type,
-//    self.headers,
-//).into_bytes();

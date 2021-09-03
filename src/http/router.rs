@@ -11,7 +11,7 @@ impl Router {
     /// and sends back a `Response` to the client
     ///
     /// Arguments:
-    /// * stream: TcpStream
+    /// * stream: mut TcpStream
     ///
     pub fn controller(mut stream: TcpStream) -> () {
         let timestamp = Utc::now();

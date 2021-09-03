@@ -11,7 +11,6 @@ pub enum StatusCode {
 
 impl StatusCode {
     /// Common HTTP Responses as string slices
-    /// `OK`, `Bad Request`, `Not Found` and `Internal Server Error`
     pub fn parse(&self) -> &str {
         match self {
             Self::Ok => "OK",
@@ -34,8 +33,12 @@ impl StatusCode {
     }
 
     /// Converts an int to `StatusCode`
-    pub fn convert(int: u16) -> StatusCode {
-        match int {
+    ///
+    /// Arguments:
+    /// i: u16
+    ///
+    pub fn convert(i: u16) -> StatusCode {
+        match i {
             200 => StatusCode::Ok,
             400 => StatusCode::BadRequest,
             404 => StatusCode::NotFound,

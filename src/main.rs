@@ -9,7 +9,9 @@ extern crate chunked_transfer;
 extern crate httparse;
 extern crate image;
 extern crate num_cpus;
+
 use server::Server;
+use std::env;
 use std::process::exit;
 
 mod connections;
@@ -20,11 +22,10 @@ mod server;
 mod utils;
 
 fn main() {
-    //let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
-    //let path = env::var("PUBLIC_PATH").unwrap_or(default_path);
+    let host = env::var("host").unwrap_or("127.0.0.1".to_string());
+    let port = env::var("port").unwrap_or("5000".to_string());
 
-    // TODO Pull address and port from env or fallback
-    if let Err(e) = Server::new("127.0.0.1", 5000).listen() {
+    if let Err(e) = Server::new(host, port).listen() {
         println!("Server has encountered an error: {}", e);
         exit(1);
     };

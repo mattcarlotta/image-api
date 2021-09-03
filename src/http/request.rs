@@ -15,7 +15,8 @@ impl<'a> Request<'a> {
     /// Parses headers from the incoming request buffer
     ///
     /// Arguments:
-    /// * buffer: [u8]
+    /// * buffer: &[u8]
+    /// * timestamp: DateTime<Utc>
     ///
     pub fn new(buffer: &'a [u8], timestamp: DateTime<Utc>) -> Self {
         let mut headers = [httparse::EMPTY_HEADER; 64];

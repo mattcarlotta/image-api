@@ -20,7 +20,6 @@ pub struct Scheduler {
 
 impl Scheduler {
     /// Initializes a connection pool to hand-off requests to a `Worker`
-    ///
     pub fn new() -> Self {
         let channels = num_cpus::get();
 
@@ -42,6 +41,10 @@ impl Scheduler {
     }
 
     /// Generates a new task by sending it to a `Worker`
+    ///
+    /// Arguments:
+    /// * t: FnOnce() + Send + 'static
+    ///
     pub fn create<T>(&self, t: T)
     where
         T: FnOnce() + Send + 'static,

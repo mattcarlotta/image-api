@@ -3,19 +3,19 @@ use crate::http::Router;
 use std::net::TcpListener;
 
 #[derive(Debug)]
-pub struct Server<'a> {
-    address: &'a str,
-    port: usize,
+pub struct Server {
+    address: String,
+    port: String,
 }
 
-impl<'a> Server<'a> {
+impl Server {
     /// Creates a single TcpServer
     ///
     /// Arguments:
-    /// * address: &str
-    /// * port: usize
+    /// * address: String
+    /// * port: String
     ///
-    pub fn new(address: &'a str, port: usize) -> Self {
+    pub fn new(address: String, port: String) -> Self {
         Server { address, port }
     }
 

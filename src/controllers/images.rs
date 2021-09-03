@@ -29,7 +29,7 @@ pub fn image(req: Request, res: Response) -> () {
         .unwrap_or(0);
 
     // ensure the provided ratio is standardized
-    if ![0, 20, 35, 50, 75, 90].contains(&ratio) {
+    if ![0, 10, 20, 35, 50, 75, 90].contains(&ratio) {
         return res.set_status(400).send(bad_req_file());
     }
 

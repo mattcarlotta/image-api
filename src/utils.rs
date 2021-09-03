@@ -18,14 +18,6 @@ pub fn server_error_file() -> ResponseType {
 }
 
 /// Converts a string into a path buffer.
-///
-/// Arguments:
-///
-/// * `path` - String
-///
-/// Returns: `&'static str`
-///
-/// Usage: ```get_file_path(path);```
 pub fn get_root_dir<'a>() -> &'a str {
     Path::new(relative!("static")).to_str().unwrap()
 }
@@ -33,12 +25,8 @@ pub fn get_root_dir<'a>() -> &'a str {
 /// Joins a pathbuf with a relative path to the `static` folder.
 ///
 /// Arguments:
+/// * path - String
 ///
-/// * `path` - String
-///
-/// Returns: `PathBuf`
-///
-/// Usage: ```get_file_path(path);```
 pub fn get_file_path(path: impl AsRef<Path>) -> PathBuf {
     Path::new(relative!("static")).join(path)
 }
@@ -46,12 +34,8 @@ pub fn get_file_path(path: impl AsRef<Path>) -> PathBuf {
 /// Converts a path buffer into a string.
 ///
 /// Arguments:
+/// * path - PathBuf
 ///
-/// * `path` - PathBuf
-///
-/// Returns: `String`
-///
-/// Usage: ```get_string_path(path);```
 pub fn get_string_path(path: impl AsRef<Path>) -> String {
     path.as_ref().to_str().unwrap().into()
 }
@@ -59,12 +43,8 @@ pub fn get_string_path(path: impl AsRef<Path>) -> String {
 /// Appends public path directory to a path
 ///
 /// Arguments:
+/// * path - &str
 ///
-/// * `path` - &str
-///
-/// Returns `&str`
-///
-/// Usage: ```public_path(path)```
 pub fn public_path<'a>(path: &'a str) -> String {
     Path::new(relative!("public"))
         .join(path)

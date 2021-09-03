@@ -13,7 +13,7 @@ pub fn image(req: Request, res: Response) -> () {
         path = &path[..i];
     }
 
-    let path: PathBuf = [path].iter().collect();
+    let path = [path].iter().collect::<PathBuf>();
     let ratio = query.get("ratio");
 
     // ensure that path is a directory

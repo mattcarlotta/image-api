@@ -27,6 +27,7 @@ impl Router {
             return controllers::badrequest(req, res);
         }
 
+        // matches requests via requested method and path
         match req.method {
             Method::GET => match req.path {
                 "/" => controllers::hello(req, res),

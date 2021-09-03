@@ -4,21 +4,13 @@ macro_rules! relative {
     };
 }
 
-extern crate chunked_transfer;
-
-extern crate image;
-
-extern crate num_cpus;
-
-extern crate httparse;
-
 extern crate chrono;
-
-use std::process::exit;
-
-// use router::Router;
+extern crate chunked_transfer;
+extern crate httparse;
+extern crate image;
+extern crate num_cpus;
 use server::Server;
-//use std::env;
+use std::process::exit;
 
 mod connections;
 mod controllers;

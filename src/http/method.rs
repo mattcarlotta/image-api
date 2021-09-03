@@ -1,7 +1,7 @@
 use std::fmt::{self, Display, Formatter};
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Method {
     CONNECT,
     DELETE,
@@ -19,7 +19,7 @@ impl Method {
     /// Common HTTP Request Methods
     /// `GET`, `OPTIONS`, `POST`, `PUT` ...etc
     pub fn as_str(&self) -> &str {
-        match *self {
+        match self {
             Method::CONNECT => "CONNECT",
             Method::DELETE => "DELETE",
             Method::GET => "GET",
@@ -32,12 +32,19 @@ impl Method {
             _ => "Invalid Method",
         }
     }
+
+    pub fn is_valid(&self) -> bool {
+        match self {
+            Method::INVALIDMETHOD => false,
+            _ => true,
+        }
+    }
 }
 
 impl FromStr for Method {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Self, ()> {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
             "CONNECT" => Self::CONNECT,
             "DELETE" => Self::DELETE,

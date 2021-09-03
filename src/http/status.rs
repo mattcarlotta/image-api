@@ -1,12 +1,12 @@
 use std::fmt::{Display, Formatter, Result};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Debug)]
 pub enum StatusCode {
-    Ok = 200,
-    BadRequest = 400,
-    NotFound = 404,
-    // ServerError = 500,
-    // NotImplemented = 501,
+    Ok,
+    BadRequest,
+    NotFound,
+    ServerError,
+    NotImplemented = 501,
 }
 
 impl StatusCode {
@@ -17,14 +17,36 @@ impl StatusCode {
             Self::Ok => "OK",
             Self::BadRequest => "Bad Request",
             Self::NotFound => "Not Found",
-            // Self::ServerError => "Internal Server Error",
-            // Self::NotImplemented => "Not Implemented",
+            Self::ServerError => "Internal Server Error",
+            Self::NotImplemented => "Not Implemented",
+        }
+    }
+
+    /// Converts self into a string slice
+    pub fn code(&self) -> &str {
+        match self {
+            Self::Ok => "200",
+            Self::BadRequest => "400",
+            Self::NotFound => "404",
+            Self::ServerError => "500",
+            Self::NotImplemented => "501",
+        }
+    }
+
+    /// Converts an int to `StatusCode`
+    pub fn convert(int: u16) -> StatusCode {
+        match int {
+            200 => StatusCode::Ok,
+            400 => StatusCode::BadRequest,
+            404 => StatusCode::NotFound,
+            500 => StatusCode::ServerError,
+            _ => StatusCode::NotImplemented,
         }
     }
 }
 
 impl Display for StatusCode {
     fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "{}", *self as u16)
+        write!(f, "{}", self.code())
     }
 }

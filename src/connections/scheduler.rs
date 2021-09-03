@@ -21,12 +21,11 @@ pub struct Scheduler {
 impl Scheduler {
     /// Initializes a connection pool to hand-off requests to a `Worker`
     ///
-    /// Arguments:
-    /// * channels: usize
-    ///
-    pub fn new<'a>(channels: usize) -> Result<Self, &'a str> {
+    pub fn new() -> Self {
+        let channels = num_cpus::get();
+
         if channels < 1 {
-            return Err("You must specify a number of channels, greater than 0, to create.");
+            panic!("Unable to determine the number of CPU cores to assign to channels.");
         }
 
         let (tx, rx) = channel();
@@ -39,7 +38,7 @@ impl Scheduler {
             workers.push(Worker::new(id, Arc::clone(&rx)));
         }
 
-        Ok(Scheduler { workers, tx })
+        Scheduler { workers, tx }
     }
 
     /// Generates a new task by sending it to a `Worker`

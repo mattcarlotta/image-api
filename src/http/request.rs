@@ -1,23 +1,23 @@
-use super::{bad_req_file, Method, Response, RouteHandler, StatusCode};
+use chrono::{DateTime, Utc};
+
+use super::Method;
 use std::str;
 use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct Request<'a> {
-    pub status_code: StatusCode,
     pub method: Method,
-    pub body: String,
     pub path: &'a str,
+    pub timestamp: DateTime<Utc>,
 }
 
 impl<'a> Request<'a> {
-    /// Attempts to parse a buffer stream
+    /// Parses headers from the incoming request buffer
     ///
     /// Arguments:
-    /// * buffer: &[u8: 2]
+    /// * buffer: [u8]
     ///
-    /// Returns a `Response` that contains a `status_code`, `method` and `path`
-    pub fn parse(buffer: &'a [u8]) -> Response {
+    pub fn new(buffer: &'a [u8], timestamp: DateTime<Utc>) -> Self {
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);
 
@@ -26,27 +26,23 @@ impl<'a> Request<'a> {
             Ok(r) => {
                 let path = req.path.unwrap_or("");
                 let method = req.method.unwrap_or("");
-                let method = Method::from_str(method).unwrap();
+                let mut method = Method::from_str(method).unwrap();
 
-                // if the request/path/method are invalid return a generic bad request document
-                if r.is_partial() || path.is_empty() || method == Method::INVALIDMETHOD {
-                    return Response::new(StatusCode::BadRequest, method, path, bad_req_file());
-                };
+                // if the request/path are invalid sets method to invalid
+                // which will be caught in the Router
+                if r.is_partial() || path.is_empty() {
+                    method = Method::INVALIDMETHOD;
+                }
 
                 (path, method)
             }
-            Err(_) => {
-                return Response::new(
-                    StatusCode::BadRequest,
-                    Method::INVALIDMETHOD,
-                    "",
-                    bad_req_file(),
-                )
-            }
+            Err(_) => ("", Method::INVALIDMETHOD),
         };
 
-        let (status_code, body) = RouteHandler::delegater(&method, path);
-
-        Response::new(status_code, method, path, body)
+        Request {
+            method,
+            path,
+            timestamp,
+        }
     }
 }

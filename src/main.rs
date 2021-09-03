@@ -1,24 +1,27 @@
-extern crate httparse;
+macro_rules! relative {
+    ($path:expr) => {
+        std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/", $path))
+    };
+}
 
 extern crate chrono;
-
+extern crate chunked_transfer;
+extern crate httparse;
+extern crate image;
+extern crate num_cpus;
+use server::Server;
 use std::process::exit;
 
-// use router::Router;
-use server::Server;
-//use std::env;
-
 mod connections;
+mod controllers;
 mod http;
-//mod router;
+mod reqimage;
 mod server;
+mod utils;
 
 fn main() {
     //let default_path = format!("{}/public", env!("CARGO_MANIFEST_DIR"));
     //let path = env::var("PUBLIC_PATH").unwrap_or(default_path);
-    if std::env::var("RUST_LIB_BACKTRACE").is_err() {
-        std::env::set_var("RUST_LIB_BACKTRACE", "1")
-    }
 
     // TODO Pull address and port from env or fallback
     if let Err(e) = Server::new("127.0.0.1", 5000).listen() {

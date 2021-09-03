@@ -1,60 +1,117 @@
-use super::{Method, StatusCode};
+use super::{ContentType, Method, Request, StatusCode};
 use chrono::prelude::{DateTime, Utc};
 use std::io::prelude::Write;
 use std::net::TcpStream;
 
 #[derive(Debug)]
+pub enum ResponseType {
+    Chunked(Vec<u8>),
+    Text(String),
+}
+
+impl ResponseType {
+    /// Parses a `ResponseType` to a tuple of: `Vec<u8>` and `String`
+    pub fn parse(self) -> (Vec<u8>, String) {
+        match self {
+            ResponseType::Chunked(body) => {
+                (body.to_owned(), "Transfer-Encoding: chunked".to_string())
+            }
+            ResponseType::Text(body) => (
+                body.to_owned().into_bytes(),
+                format!("Content-Length: {}", body.len()),
+            ),
+        }
+    }
+}
+
+#[derive(Debug)]
 pub struct Response<'a> {
-    pub status_code: StatusCode,
-    pub method: Method,
-    body: String,
-    pub path: &'a str,
+    status_code: StatusCode,
+    method: Method,
+    content_type: ContentType,
+    path: &'a str,
+    timestamp: DateTime<Utc>,
+    stream: &'a mut TcpStream,
 }
 
 impl<'a> Response<'a> {
     /// Stores the result of a parsed Request
     ///
     /// Arguments:
-    /// * status_code: StatusCode
-    /// * method: Method
-    /// * path: &'a str
-    /// * body: String
+    /// * req: Request
+    /// * timestamp: DateTime
+    /// * stream: TcpStream
     ///
-    pub fn new(status_code: StatusCode, method: Method, path: &'a str, body: String) -> Self {
+    pub fn new(req: &Request<'a>, stream: &'a mut TcpStream) -> Self {
         Self {
-            status_code,
-            method,
-            body,
-            path,
+            status_code: StatusCode::Ok,
+            method: req.method,
+            path: req.path,
+            content_type: ContentType::HTML,
+            timestamp: req.timestamp,
+            stream,
         }
     }
 
     /// Attempts to write a `Response` to a `TcpStream` and logs the result to the terminal
     ///
     /// Arguments:
-    /// * stream: TcpStream
-    /// * timestamp:  DateTime<Utc>
+    /// * body: ResponseType
     ///
-    pub fn send(&self, mut stream: TcpStream, timestamp: DateTime<Utc>) {
-        let response = format!(
-            "HTTP/1.1 {} {}\r\nContent-Length: {}\r\n\r\n{}",
-            self.status_code,
-            self.status_code.parse(),
-            self.body.len(),
-            self.body
-        );
+    pub fn send(self, body: ResponseType) -> () {
+        let (body, headers) = ResponseType::parse(body);
 
-        stream.write_all(response.as_bytes()).unwrap();
+        let header = format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse());
+        let date = format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"));
+        let ct = format!("Content-Type: {}", self.content_type);
+
+        let mut response = [
+            &header,
+            "Server: rustybuckets/0.0.1",
+            &date,
+            &ct,
+            headers.as_str(),
+            "X-Content-Type-Options: nosniff",
+            "X-Frame-Options: DENY",
+            "\r\n",
+        ]
+        .join("\r\n")
+        .into_bytes();
+
+        response.extend(&body);
+
+        self.stream.write_all(&response).unwrap();
 
         println!(
             "[{}] - {} {} HTTP/1.1 {} {}ms",
-            timestamp.format("%B %d %Y, %I:%M:%S %P"),
+            self.timestamp.format("%B %d %Y, %I:%M:%S %P"),
             self.method,
             self.path,
             self.status_code,
-            (Utc::now() - timestamp).num_milliseconds()
+            (Utc::now() - self.timestamp).num_milliseconds()
         );
 
-        stream.flush().unwrap();
+        self.stream.flush().unwrap()
+    }
+
+    pub fn set_content(mut self, s: &str) -> Self {
+        self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::INVALID);
+
+        self
+    }
+
+    pub fn set_status(mut self, s: u16) -> Self {
+        self.status_code = StatusCode::convert(s);
+
+        self
     }
 }
+
+//let mut response = format!(
+//    "HTTP/1.1 {} {}\r\nServer: rustybuckets/0.0.1\r\nDate: {}\r\nContent-Type:{}\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: DENY\r\n{}\r\n\r\n",
+//    self.status_code,
+//    self.status_code.parse(),
+//    Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"),
+//    self.content_type,
+//    self.headers,
+//).into_bytes();

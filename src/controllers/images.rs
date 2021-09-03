@@ -3,7 +3,7 @@ use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
 use std::path::PathBuf;
 
-pub fn image(req: Request, mut res: Response) -> () {
+pub fn image(req: Request, res: Response) -> () {
     let mut path = req.path;
     let mut query = QueryString::new();
 
@@ -18,8 +18,8 @@ pub fn image(req: Request, mut res: Response) -> () {
 
     // ensure that path is a directory
     if path.extension().is_none() || path.as_os_str().is_empty() {
-        res.set_status(404);
-        return res.send(file_not_found());
+        // res;
+        return res.set_status(404).send(file_not_found());
     }
 
     // converts supplied "ratio" to a valid u8 integer
@@ -31,9 +31,7 @@ pub fn image(req: Request, mut res: Response) -> () {
 
     // ensure the provided ratio is standardized
     if ![0, 20, 35, 50, 75, 90].contains(&ratio) {
-        res.set_status(400);
-
-        return res.send(bad_req_file());
+        return res.set_status(400).send(bad_req_file());
     }
 
     // initialize requested image
@@ -41,9 +39,7 @@ pub fn image(req: Request, mut res: Response) -> () {
 
     // ensure the requested image has a valid content type
     if img.content_type.is_none() {
-        res.set_status(400);
-
-        return res.send(bad_req_file());
+        return res.set_status(400).send(bad_req_file());
     }
 
     //    let mut cache = state.lock().await;
@@ -51,9 +47,7 @@ pub fn image(req: Request, mut res: Response) -> () {
     // if !cache.contains_key(&img.new_pathname) {
     // return if requested image doesn't exist
     if !img.path.is_file() {
-        res.set_status(404);
-
-        return res.send(file_not_found());
+        return res.set_status(404).send(file_not_found());
     }
 
     // create a new image from original if one doesn't exist already
@@ -61,9 +55,7 @@ pub fn image(req: Request, mut res: Response) -> () {
         match img.save() {
             Ok(()) => (),
             Err(_) => {
-                res.set_status(500);
-
-                return res.send(server_error_file());
+                return res.set_status(500).send(server_error_file());
             }
         };
     }
@@ -72,9 +64,7 @@ pub fn image(req: Request, mut res: Response) -> () {
     let body = match img.read() {
         Ok(contents) => contents,
         Err(_) => {
-            res.set_status(500);
-
-            return res.send(server_error_file());
+            return res.set_status(500).send(server_error_file());
         }
     };
 
@@ -95,7 +85,5 @@ pub fn image(req: Request, mut res: Response) -> () {
     //
     //
 
-    res.set_content(img.ext);
-
-    return res.send(ResponseType::Chunked(body));
+    return res.set_content(img.ext).send(ResponseType::Chunked(body));
 }

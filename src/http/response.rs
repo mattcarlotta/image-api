@@ -58,7 +58,7 @@ impl<'a> Response<'a> {
     /// Arguments:
     /// * body: ResponseType
     ///
-    pub fn send(&mut self, body: ResponseType) -> () {
+    pub fn send(self, body: ResponseType) -> () {
         let (body, headers) = ResponseType::parse(body);
 
         let header = format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse());
@@ -94,12 +94,16 @@ impl<'a> Response<'a> {
         self.stream.flush().unwrap()
     }
 
-    pub fn set_content(&mut self, s: &str) {
+    pub fn set_content(mut self, s: &str) -> Self {
         self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::INVALID);
+
+        self
     }
 
-    pub fn set_status(&mut self, s: u16) {
+    pub fn set_status(mut self, s: u16) -> Self {
         self.status_code = StatusCode::convert(s);
+
+        self
     }
 }
 

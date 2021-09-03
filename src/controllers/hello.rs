@@ -4,7 +4,7 @@ use crate::{
 };
 use std::fs;
 
-pub fn hello(_req: Request, mut res: Response) -> () {
+pub fn hello(_req: Request, res: Response) -> () {
     let body = fs::read_to_string(public_path("hello.html")).unwrap();
 
     return res.send(ResponseType::Text(body));

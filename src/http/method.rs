@@ -34,7 +34,7 @@ impl Method {
 
     /// Determine if method is valid
     pub fn is_valid(&self) -> bool {
-        !matches!(self, Method::Invalidmethod)
+        *self != Method::Invalidmethod
     }
 }
 

@@ -45,7 +45,7 @@ pub fn get_string_path(path: impl AsRef<Path>) -> String {
 /// Arguments:
 /// * path - &str
 ///
-pub fn public_path<'a>(path: &'a str) -> String {
+pub fn public_path(path: &'_ str) -> String {
     Path::new(relative!("public"))
         .join(path)
         .to_str()

@@ -2,32 +2,32 @@ use std::fmt::{self, Debug, Display, Formatter};
 
 #[derive(Debug, PartialEq)]
 pub enum ContentType {
-    PNG,
-    GIF,
-    BMP,
-    JPEG,
-    JPG,
-    WEBP,
-    AVIF,
-    SVG,
-    ICO,
-    HTML,
-    INVALID,
+    Png,
+    Gif,
+    Bmp,
+    Jpeg,
+    Jpg,
+    Webp,
+    Avif,
+    Svg,
+    Ico,
+    Html,
+    Invalid,
 }
 
 impl ContentType {
     /// Converts self into a string slice
     pub fn as_str(&self) -> &str {
         match *self {
-            ContentType::PNG => "image/png",
-            ContentType::BMP => "image/bmp",
-            ContentType::JPG => "image/jpg",
-            ContentType::JPEG => "image/jpeg",
-            ContentType::WEBP => "image/webp",
-            ContentType::AVIF => "image/avif",
-            ContentType::SVG => "image/svg",
-            ContentType::ICO => "image/ico",
-            ContentType::HTML => "text/html; charset=utf-8",
+            ContentType::Png => "image/png",
+            ContentType::Bmp => "image/bmp",
+            ContentType::Jpg => "image/jpg",
+            ContentType::Jpeg => "image/jpeg",
+            ContentType::Webp => "image/webp",
+            ContentType::Avif => "image/avif",
+            ContentType::Svg => "image/svg",
+            ContentType::Ico => "image/ico",
+            ContentType::Html => "text/html; charset=utf-8",
             _ => "",
         }
     }
@@ -39,16 +39,16 @@ impl ContentType {
     ///
     pub fn from_extension(s: &str) -> Option<ContentType> {
         match s {
-            "png" => Some(ContentType::PNG),
-            "gif" => Some(ContentType::GIF),
-            "bmp" => Some(ContentType::BMP),
-            "jpg" => Some(ContentType::JPG),
-            "jpeg" => Some(ContentType::JPEG),
-            "webp" => Some(ContentType::WEBP),
-            "avif" => Some(ContentType::AVIF),
-            "svg" => Some(ContentType::SVG),
-            "ico" => Some(ContentType::ICO),
-            "html" => Some(ContentType::HTML),
+            "png" => Some(ContentType::Png),
+            "gif" => Some(ContentType::Gif),
+            "bmp" => Some(ContentType::Bmp),
+            "jpg" => Some(ContentType::Jpg),
+            "jpeg" => Some(ContentType::Jpeg),
+            "webp" => Some(ContentType::Webp),
+            "avif" => Some(ContentType::Avif),
+            "svg" => Some(ContentType::Svg),
+            "ico" => Some(ContentType::Ico),
+            "html" => Some(ContentType::Html),
             _ => None,
         }
     }

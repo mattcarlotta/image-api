@@ -32,12 +32,12 @@ impl<'a> Request<'a> {
                 // if the request/path are invalid sets method to invalid
                 // which will be caught in the Router
                 if r.is_partial() || path.is_empty() {
-                    method = Method::INVALIDMETHOD;
+                    method = Method::Invalidmethod;
                 }
 
                 (path, method)
             }
-            Err(_) => ("", Method::INVALIDMETHOD),
+            Err(_) => ("", Method::Invalidmethod),
         };
 
         Request {

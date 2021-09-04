@@ -3,7 +3,7 @@ use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
 use std::path::PathBuf;
 
-pub fn image(req: Request, res: Response) -> () {
+pub fn image(req: Request, res: Response) {
     let mut path = req.path;
     let mut query = QueryString::new();
 

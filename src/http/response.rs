@@ -13,9 +13,7 @@ impl ResponseType {
     /// Parses a `ResponseType` to a tuple of: `Vec<u8>` and `String`
     pub fn parse(self) -> (Vec<u8>, String) {
         match self {
-            ResponseType::Chunked(body) => {
-                (body.to_owned(), "Transfer-Encoding: chunked".to_string())
-            }
+            ResponseType::Chunked(body) => (body, "Transfer-Encoding: chunked".to_string()),
             ResponseType::Text(body) => (
                 body.to_owned().into_bytes(),
                 format!("Content-Length: {}", body.len()),
@@ -46,7 +44,7 @@ impl<'a> Response<'a> {
             status_code: StatusCode::Ok,
             method: req.method,
             path: req.path,
-            content_type: ContentType::HTML,
+            content_type: ContentType::Html,
             timestamp: req.timestamp,
             stream,
         }
@@ -58,7 +56,7 @@ impl<'a> Response<'a> {
     /// s: &str
     ///
     pub fn set_content(mut self, s: &str) -> Self {
-        self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::INVALID);
+        self.content_type = ContentType::from_extension(s).unwrap_or(ContentType::Invalid);
 
         self
     }
@@ -79,7 +77,7 @@ impl<'a> Response<'a> {
     /// Arguments:
     /// * body: ResponseType
     ///
-    pub fn send(self, body: ResponseType) -> () {
+    pub fn send(self, body: ResponseType) {
         let (body, headers) = ResponseType::parse(body);
 
         let header = format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse());

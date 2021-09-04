@@ -50,7 +50,7 @@ impl<'p> RequestedImage<'p> {
                 let stem = &filepath
                     .file_stem()
                     .and_then(OsStr::to_str)
-                    .expect(&format!("Image is missing stem"));
+                    .unwrap_or_else(|| panic!("Image is missing stem"));
 
                 // retrieve image file stem => <ext>
                 format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, &ext.unwrap())

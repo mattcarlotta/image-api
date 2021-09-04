@@ -3,41 +3,38 @@ use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum Method {
-    CONNECT,
-    DELETE,
-    GET,
-    HEAD,
-    OPTIONS,
-    PATCH,
-    POST,
-    PUT,
-    TRACE,
-    INVALIDMETHOD,
+    Connect,
+    Delete,
+    Get,
+    Head,
+    Options,
+    Patch,
+    Post,
+    Put,
+    Trace,
+    Invalidmethod,
 }
 
 impl Method {
     /// Common HTTP request methods as string slices
     pub fn as_str(&self) -> &str {
         match self {
-            Method::CONNECT => "CONNECT",
-            Method::DELETE => "DELETE",
-            Method::GET => "GET",
-            Method::HEAD => "HEAD",
-            Method::OPTIONS => "OPTIONS",
-            Method::PATCH => "PATCH",
-            Method::POST => "POST",
-            Method::PUT => "PUT",
-            Method::TRACE => "TRACE",
+            Method::Connect => "CONNECT",
+            Method::Delete => "DELETE",
+            Method::Get => "GET",
+            Method::Head => "HEAD",
+            Method::Options => "OPTIONS",
+            Method::Patch => "PATCH",
+            Method::Post => "POST",
+            Method::Put => "PUT",
+            Method::Trace => "TRACE",
             _ => "Invalid Method",
         }
     }
 
     /// Determine if method is valid
     pub fn is_valid(&self) -> bool {
-        match self {
-            Method::INVALIDMETHOD => false,
-            _ => true,
-        }
+        !matches!(self, Method::Invalidmethod)
     }
 }
 
@@ -46,16 +43,16 @@ impl FromStr for Method {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "CONNECT" => Self::CONNECT,
-            "DELETE" => Self::DELETE,
-            "GET" => Self::GET,
-            "HEAD" => Self::HEAD,
-            "OPTIONS" => Self::OPTIONS,
-            "PATCH" => Self::PATCH,
-            "POST" => Self::POST,
-            "PUT" => Self::PUT,
-            "TRACE" => Self::TRACE,
-            _ => Self::INVALIDMETHOD,
+            "CONNECT" => Self::Connect,
+            "DELETE" => Self::Delete,
+            "GET" => Self::Get,
+            "HEAD" => Self::Head,
+            "OPTIONS" => Self::Options,
+            "PATCH" => Self::Patch,
+            "POST" => Self::Post,
+            "PUT" => Self::Put,
+            "TRACE" => Self::Trace,
+            _ => Self::Invalidmethod,
         })
     }
 }

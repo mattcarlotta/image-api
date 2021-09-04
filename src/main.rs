@@ -22,8 +22,8 @@ mod server;
 mod utils;
 
 fn main() {
-    let host = env::var("host").unwrap_or("127.0.0.1".to_string());
-    let port = env::var("port").unwrap_or("5000".to_string());
+    let host = env::var("host").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let port = env::var("port").unwrap_or_else(|_| "5000".to_string());
 
     if let Err(e) = Server::new(host, port).listen() {
         println!("Server has encountered an error: {}", e);

@@ -13,7 +13,7 @@ impl Router {
     /// Arguments:
     /// * stream: mut TcpStream
     ///
-    pub fn controller(mut stream: TcpStream) -> () {
+    pub fn controller(mut stream: TcpStream) {
         let timestamp = Utc::now();
         let mut buffer = [0; 1024];
 
@@ -29,7 +29,7 @@ impl Router {
 
         // matches requests via requested method and path
         match req.method {
-            Method::GET => match req.path {
+            Method::Get => match req.path {
                 "/" => controllers::hello(req, res),
                 "/sleep" => controllers::sleep(req, res),
                 _ => controllers::image(req, res),

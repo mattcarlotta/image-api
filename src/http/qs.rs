@@ -40,6 +40,6 @@ impl<'buf> QueryString<'buf> {
     /// * key: &str
     ///
     pub fn get(&self, key: &str) -> Option<&'buf str> {
-        self.table.get(key).and_then(move |v| Some(*v))
+        self.table.get(key).copied()
     }
 }

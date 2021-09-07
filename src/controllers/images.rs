@@ -1,9 +1,10 @@
 use crate::http::{QueryString, Request, Response, ResponseType};
+use crate::lrucache::Cache;
 use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
 use std::path::PathBuf;
 
-pub fn image(req: Request, res: Response) {
+pub fn image(cache: Cache, req: Request, res: Response) {
     let mut path = req.path;
     let mut query = QueryString::new();
 
@@ -41,44 +42,38 @@ pub fn image(req: Request, res: Response) {
         return res.set_status(400).send(bad_req_file());
     }
 
-    //    let mut cache = state.lock().await;
+    let mut imgcache = cache.lock().unwrap();
     // determine if cache contains requested image
-    // if !cache.contains_key(&img.new_pathname) {
-    // return if requested image doesn't exist
-    if !img.path.is_file() {
-        return res.set_status(404).send(file_not_found());
-    }
+    if !imgcache.contains_key(&img.new_pathname) {
+        // return if requested image doesn't exist
+        if !img.path.is_file() {
+            return res.set_status(404).send(file_not_found());
+        }
 
-    // create a new image from original if one doesn't exist already
-    if !img.exists() {
-        match img.save() {
-            Ok(()) => (),
+        // create a new image from original if one doesn't exist already
+        if !img.exists() {
+            match img.save() {
+                Ok(()) => (),
+                Err(_) => return res.set_status(500).send(server_error_file()),
+            };
+        }
+
+        // read the requested image from disk and encode it
+        match img.read() {
+            Ok(contents) => imgcache.insert(img.new_pathname.clone(), contents),
             Err(_) => return res.set_status(500).send(server_error_file()),
         };
+
+        // println!("Saved requested image into cache.");
     }
 
-    // read the original or new image and store its contents into cache
-    let body = match img.read() {
-        Ok(contents) => contents,
-        Err(_) => return res.set_status(500).send(server_error_file()),
-    };
+    // retrieve saved encoded image from the cache
+    let cached_image = imgcache
+        .get(&img.new_pathname)
+        .expect("Unable to retrieve image entry from cache.");
 
-    // match img.read() {
-    //    Ok(contents) => cache.insert(img.new_pathname.clone(), contents),
-    //    Err(reason) => return Err(send_400_response(reason.to_string())),
-    //};
+    // println!("Served requested image from cache.");
 
-    // println!("Saved requested image into cache.");
-    // }
-
-    // retrieve saved image from the cache
-    //let cached_image = cache
-    //.get(&img.new_pathname)
-    //.expect("Unable to retrieve image entry from cache.");
-
-    // print!("Served requested image from cache.");
-    //
-    //
-
-    res.set_content(img.ext).send(ResponseType::Chunked(body))
+    res.set_content(img.ext)
+        .send(ResponseType::Chunked(cached_image.to_vec()))
 }

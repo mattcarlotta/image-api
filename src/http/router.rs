@@ -1,5 +1,6 @@
 use super::{Method, Request, Response};
 use crate::controllers;
+use crate::lrucache::Cache;
 use chrono::prelude::Utc;
 use std::io::Read;
 use std::net::TcpStream;
@@ -12,8 +13,9 @@ impl Router {
     ///
     /// Arguments:
     /// * stream: mut TcpStream
+    /// * cache: Cache
     ///
-    pub fn controller(mut stream: TcpStream) {
+    pub fn controller<'a>(mut stream: TcpStream, cache: Cache) {
         let timestamp = Utc::now();
         let mut buffer = [0; 1024];
 
@@ -32,7 +34,7 @@ impl Router {
             Method::Get => match req.path {
                 "/" => controllers::hello(req, res),
                 "/sleep" => controllers::sleep(req, res),
-                _ => controllers::image(req, res),
+                _ => controllers::image(cache, req, res),
             },
             _ => controllers::badrequest(req, res),
         }

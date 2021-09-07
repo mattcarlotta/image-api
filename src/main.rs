@@ -17,6 +17,7 @@ use std::process::exit;
 mod connections;
 mod controllers;
 mod http;
+mod lrucache;
 mod reqimage;
 mod server;
 mod utils;

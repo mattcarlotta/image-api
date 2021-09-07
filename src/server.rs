@@ -1,8 +1,9 @@
 use crate::connections::Scheduler;
 use crate::http::Router;
+use crate::lrucache::LRUCache;
 use std::net::TcpListener;
+use std::sync::{Arc, Mutex};
 
-#[derive(Debug)]
 pub struct Server {
     address: String,
     port: String,
@@ -27,11 +28,13 @@ impl Server {
 
         let listener = TcpListener::bind(host).unwrap();
         let scheduler = Scheduler::new();
+        let c = Arc::new(Mutex::new(LRUCache::<String, Vec<u8>>::new(50)));
 
         for stream in listener.incoming() {
+            let cache = Arc::clone(&c);
             match stream {
                 Ok(stream) => scheduler.create(|| {
-                    Router::controller(stream);
+                    Router::controller(stream, cache);
                 }),
                 Err(e) => println!("Unable to handle request: {}", e),
             }

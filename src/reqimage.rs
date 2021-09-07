@@ -6,7 +6,7 @@ use image::GenericImageView;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct RequestedImage<'p> {
@@ -29,7 +29,7 @@ impl<'p> RequestedImage<'p> {
     /// * path - PathBuf
     /// * ratio - u8
     ///
-    pub fn new(path: &'p PathBuf, ratio: u8) -> Self {
+    pub fn new(path: &'p Path, ratio: u8) -> Self {
         // if present, strip any included "_<ratio>" from the filename
         let filename: String = get_string_path(path.to_path_buf())
             .chars()

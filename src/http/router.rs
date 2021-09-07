@@ -15,7 +15,7 @@ impl Router {
     /// * stream: mut TcpStream
     /// * cache: Cache
     ///
-    pub fn controller<'a>(mut stream: TcpStream, cache: Cache) {
+    pub fn controller(mut stream: TcpStream, cache: Cache) {
         let timestamp = Utc::now();
         let mut buffer = [0; 1024];
 

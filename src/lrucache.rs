@@ -88,10 +88,10 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
             self.ensure_room();
             // Update old head
             let idx = self.entries.len();
-            self.first.map(|e| {
+            if let Some(e) = self.first {
                 let prev = Some(idx);
                 self.entries[e].prev = prev;
-            });
+            };
             // This is the new head
             self.entries.push(CacheEntry {
                 key: key.clone(),
@@ -119,7 +119,7 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
     /// assert_eq!(cache.remove(&"foo"), Some(1));
     /// ```
     pub fn remove(&mut self, key: &K) -> Option<V> {
-        self.table.remove(&key).map(|idx| {
+        self.table.remove(key).map(|idx| {
             self.remove_from_list(idx);
             self.entries[idx].value.take().unwrap()
         })

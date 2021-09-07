@@ -64,15 +64,18 @@ pub fn image(cache: Cache, req: Request, res: Response) {
             Err(_) => return res.set_status(500).send(server_error_file()),
         };
 
-        // println!("Saved requested image into cache.");
+        println!(
+            "[{}] - Saved {} image into LRU cache.",
+            req.timestamp.format("%B %d %Y, %I:%M:%S %P"),
+            req.path,
+        );
     }
 
     // retrieve saved encoded image from the cache
-    let cached_image = imgcache
-        .get(&img.new_pathname)
-        .expect("Unable to retrieve image entry from cache.");
-
-    // println!("Served requested image from cache.");
+    let cached_image = match imgcache.get(&img.new_pathname) {
+        Some(i) => i,
+        None => return res.set_status(500).send(server_error_file()),
+    };
 
     res.set_content(img.ext)
         .send(ResponseType::Chunked(cached_image.to_vec()))

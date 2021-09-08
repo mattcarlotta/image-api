@@ -6,7 +6,7 @@ pub enum StatusCode {
     BadRequest,
     NotFound,
     ServerError,
-    NotImplemented = 501,
+    NotImplemented,
 }
 
 impl StatusCode {
@@ -21,7 +21,7 @@ impl StatusCode {
         }
     }
 
-    /// Converts self into a string slice
+    /// Converts self into a string slice code as string
     pub fn code(&self) -> &str {
         match self {
             Self::Ok => "200",

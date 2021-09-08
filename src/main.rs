@@ -10,24 +10,35 @@ extern crate httparse;
 extern crate image;
 extern crate num_cpus;
 
-use server::Server;
 use std::env;
-use std::process::exit;
+use std::net::TcpListener;
+use std::sync::{Arc, Mutex};
 
 mod connections;
 mod controllers;
 mod http;
 mod lrucache;
 mod reqimage;
-mod server;
 mod utils;
 
 fn main() {
-    let host = env::var("host").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let address = env::var("host").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("port").unwrap_or_else(|_| "5000".to_string());
+    let host = format!("{}:{}", address, port);
 
-    if let Err(e) = Server::new(host, port).listen() {
-        println!("Server has encountered an error: {}", e);
-        exit(1);
-    };
+    println!("Listening for requests on: {}", &host);
+
+    let listener = TcpListener::bind(host).unwrap();
+    let scheduler = connections::Scheduler::new();
+    let init_cache = Arc::new(Mutex::new(lrucache::LRUCache::<String, Vec<u8>>::new(50)));
+
+    for stream in listener.incoming() {
+        let cache = Arc::clone(&init_cache);
+        match stream {
+            Ok(stream) => scheduler.create(|| {
+                http::controller(stream, cache);
+            }),
+            Err(e) => println!("Unable to handle request: {}", e),
+        }
+    }
 }

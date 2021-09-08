@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 // The MIT License (MIT)
 //
 // Copyright (c) 2016 Christian W. Briones
@@ -107,25 +106,6 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
     }
 
     ///
-    /// Removes the item associated with `key` from the cache and returns its value, if any.
-    ///
-    /// # Example
-    /// ```
-    /// use lrucache::LRUCache;
-    ///
-    /// let mut cache: LRUCache<&str, _> = LRUCache::with_capacity(10);
-    /// assert_eq!(cache.remove(&"foo"), None);
-    /// cache.insert("foo", 1);
-    /// assert_eq!(cache.remove(&"foo"), Some(1));
-    /// ```
-    pub fn remove(&mut self, key: &K) -> Option<V> {
-        self.table.remove(key).map(|idx| {
-            self.remove_from_list(idx);
-            self.entries[idx].value.take().unwrap()
-        })
-    }
-
-    ///
     /// Retrieves a reference to the item associated with `key` from the cache
     /// without promoting it.
     ///
@@ -169,60 +149,10 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
     }
 
     ///
-    /// Retrieves a mutable reference to the item associated with `key` from the cache.
-    ///
-    /// # Example
-    /// ```
-    /// use lrucache::LRUCache;
-    ///
-    /// let mut cache: LRUCache<&str, _> = LRUCache::with_capacity(10);
-    /// cache.insert("foo", 1);
-    /// {
-    ///     let foo = cache.get_mut(&"foo").unwrap();
-    ///     *foo = 2;
-    /// }
-    /// assert_eq!(cache.get(&"foo"), Some(&2));
-    /// ```
-    pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
-        if self.contains_key(key) {
-            self.access(key);
-        }
-        let entries = &mut self.entries;
-        self.table
-            .get(key)
-            .and_then(move |i| entries[*i].value.as_mut())
-    }
-
-    ///
     /// Returns the number of elements currently in the cache.
     ///
     pub fn len(&self) -> usize {
         self.table.len()
-    }
-
-    ///
-    /// Returns true if the cache contains no elements.
-    ///
-    /// # Example
-    /// ```
-    /// use lrucache::LRUCache;
-    ///
-    /// let mut cache = LRUCache::with_capacity(10);
-    /// assert!(cache.is_empty());
-    ///
-    /// cache.insert("foo", 1);
-    /// assert!(!cache.is_empty());
-    /// ```
-    pub fn is_empty(&self) -> bool {
-        self.table.is_empty()
-    }
-
-    ///
-    /// Returns true if the cache is at full capacity. Any subsequent insertions of keys not
-    /// already present will eject the oldest element from the cache.
-    ///
-    pub fn is_full(&self) -> bool {
-        self.table.len() == self.capacity
     }
 
     ///

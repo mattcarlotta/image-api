@@ -3,7 +3,7 @@ pub use method::Method;
 pub use qs::QueryString;
 pub use request::Request;
 pub use response::{Response, ResponseType};
-pub use router::Router;
+pub use router::controller;
 pub use status::StatusCode;
 
 mod contenttype;

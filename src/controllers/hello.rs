@@ -1,7 +1,5 @@
-use crate::{
-    http::{Request, Response, ResponseType},
-    utils::public_path,
-};
+use crate::http::{Request, Response, ResponseType};
+use crate::utils::public_path;
 use std::fs;
 
 pub fn hello(_req: Request, res: Response) {

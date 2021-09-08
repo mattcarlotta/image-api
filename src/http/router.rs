@@ -30,6 +30,7 @@ pub fn controller(mut stream: TcpStream, cache: Cache) {
     match req.method {
         Method::Get => match req.path {
             "/" => controllers::hello(req, res),
+            "/favicon.ico" => controllers::favicon(req, res),
             _ => controllers::image(cache, req, res),
         },
         _ => controllers::badrequest(req, res),

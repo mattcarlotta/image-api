@@ -28,4 +28,4 @@ can determine which image to load based upon the current viewport width.
 
 ### Flow Chart
 
-<img src="https://i.imgur.com/fncohIL.png" />
+<img src="https://i.imgur.com/JXBexyz.png" />

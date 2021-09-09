@@ -1,6 +1,5 @@
-use chrono::{DateTime, Utc};
-
 use super::Method;
+use chrono::{DateTime, Utc};
 use std::str;
 use std::str::FromStr;
 
@@ -30,7 +29,7 @@ impl<'a> Request<'a> {
                 let mut method = Method::from_str(method).unwrap();
 
                 // if the request/path are invalid sets method to invalid
-                // which will be caught in the Router
+                // which will be caught in the main controller
                 if r.is_partial() || path.is_empty() {
                     method = Method::Invalidmethod;
                 }

@@ -1,18 +1,17 @@
-macro_rules! relative {
-    ($path:expr) => {
-        std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/", $path))
-    };
-}
-
 extern crate chrono;
 extern crate chunked_transfer;
 extern crate httparse;
 extern crate image;
 extern crate num_cpus;
-
 use std::env;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
+
+macro_rules! relative {
+    ($path:expr) => {
+        std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/", $path))
+    };
+}
 
 mod connections;
 mod controllers;
@@ -30,7 +29,7 @@ fn main() {
 
     let listener = TcpListener::bind(host).unwrap();
     let scheduler = connections::Scheduler::new();
-    let init_cache = Arc::new(Mutex::new(lrucache::LRUCache::<String, Vec<u8>>::new(50)));
+    let init_cache = Arc::new(Mutex::new(lrucache::LRUCache::new(50)));
 
     for stream in listener.incoming() {
         let cache = Arc::clone(&init_cache);

@@ -64,10 +64,10 @@ impl<'a> Response<'a> {
     /// Replaces `status_code` with `StatusCode` from a `u16` integer
     ///
     /// Arguments:
-    /// * s: u16
+    /// * i: u16
     ///
-    pub fn set_status(mut self, s: u16) -> Self {
-        self.status_code = StatusCode::convert(s);
+    pub fn set_status(mut self, i: u16) -> Self {
+        self.status_code = StatusCode::convert(i);
 
         self
     }

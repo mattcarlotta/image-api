@@ -32,7 +32,7 @@ impl Method {
         }
     }
 
-    /// Determine if method is valid
+    /// Determine if parsed method is valid
     pub fn is_valid(&self) -> bool {
         *self != Method::Invalidmethod
     }

@@ -2,6 +2,15 @@ use crate::http::ResponseType;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+/// Converts a path into a string.
+///
+/// Arguments:
+/// * path - Path
+///
+pub fn get_string_path(path: impl AsRef<Path>) -> String {
+    path.as_ref().to_str().unwrap().into()
+}
+
 /// Returns a boilerplate 400 Bad Request HTML document
 pub fn bad_req_file() -> ResponseType {
     ResponseType::Text(fs::read_to_string(public_path("400.html")).unwrap())
@@ -17,47 +26,34 @@ pub fn server_error_file() -> ResponseType {
     ResponseType::Text(fs::read_to_string(public_path("500.html")).unwrap())
 }
 
-/// Converts a string into a path buffer.
-pub fn get_root_dir<'a>() -> &'a str {
-    Path::new(relative!("static")).to_str().unwrap()
+/// Returns the root directory of "static" as a string
+pub fn get_root_dir() -> String {
+    get_string_path(relative!("static"))
 }
 
-/// Joins a pathbuf with a relative path to the `static` folder.
+/// Joins a path with a relative path to the `static` folder.
 ///
 /// Arguments:
 /// * path - String
 ///
 pub fn get_static_file(path: impl AsRef<Path>) -> PathBuf {
-    Path::new(relative!("static")).join(path)
+    relative!("static").join(path)
 }
 
-/// Joins a pathbuf with a relative path to the `public` folder.
+/// Joins a path with a relative path to the `public` folder.
 ///
 /// Arguments:
 /// * path - String
 ///
 pub fn get_public_file(path: impl AsRef<Path>) -> PathBuf {
-    Path::new(relative!("public")).join(path)
+    relative!("public").join(path)
 }
 
-/// Converts a path buffer into a string.
-///
-/// Arguments:
-/// * path - PathBuf
-///
-pub fn get_string_path(path: impl AsRef<Path>) -> String {
-    path.as_ref().to_str().unwrap().into()
-}
-
-/// Appends public path directory to a path
+/// Converts a "public" path file to a string
 ///
 /// Arguments:
 /// * path - &str
 ///
 pub fn public_path(path: &'_ str) -> String {
-    Path::new(relative!("public"))
-        .join(path)
-        .to_str()
-        .unwrap()
-        .into()
+    get_string_path(get_public_file(path))
 }

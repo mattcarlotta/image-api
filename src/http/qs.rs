@@ -34,7 +34,7 @@ impl<'buf> QueryString<'buf> {
         }
     }
 
-    /// Attempts to retriev a vale from the table via key
+    /// Attempts to retrieve a value from the table via key
     ///
     /// Arguments:
     /// * key: &str

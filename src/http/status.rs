@@ -21,7 +21,7 @@ impl StatusCode {
         }
     }
 
-    /// Converts self into a string slice code as string
+    /// Converts self into a string slice code
     pub fn code(&self) -> &str {
         match self {
             Self::Ok => "200",

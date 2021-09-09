@@ -32,13 +32,13 @@ impl<'p> RequestedImage<'p> {
     /// * public - bool
     ///
     pub fn new(path: &'p Path, ratio: u8, public: bool) -> Self {
-        // if present, strip any included "_<ratio>" from the filename
+        // if present strip any included "_<ratio>" from the filename
         let filename = get_string_path(path.to_path_buf())
             .chars()
             .filter(|c| *c != '/' && *c != '_' && !c.is_digit(10))
             .collect::<String>();
 
-        // retrieve file path to "static" or "public" folder => <rootdir><filepath><filename>.<ext>
+        // retrieve file path to "static" or "public" folder: <rootdir><filepath><filename>.<ext>
         let filepath = if !public {
             get_static_file(&filename)
         } else {
@@ -57,13 +57,13 @@ impl<'p> RequestedImage<'p> {
                 .and_then(OsStr::to_str)
                 .unwrap_or_else(|| panic!("Image is missing stem"));
 
-            // retrieve image file stem => <ext>
+            // format image file: <rootdir><filename>_<ratio>.<ext>
             format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, &ext.unwrap())
         };
 
         RequestedImage {
             content_type: ext.and_then(ContentType::from_extension),
-            path: Path::new(&filepath).to_path_buf(),
+            path: filepath,
             filename,
             new_pathname: pathname.to_string(),
             new_pathname_buf: Path::new(&pathname).to_path_buf(),
@@ -92,7 +92,7 @@ impl<'p> RequestedImage<'p> {
         // resize and save it as the requested ratio
         original_image
             .resize(new_width, new_height, FilterType::CatmullRom)
-            .save(self.new_pathname.to_string())
+            .save(self.new_pathname.as_str())
             .expect("Failed to resize image.");
 
         Ok(())
@@ -100,6 +100,7 @@ impl<'p> RequestedImage<'p> {
 
     /// Synchronously reads the requested image and returns its contents as an encoded `Vec<u8>`
     pub fn read(&self) -> Result<Vec<u8>, ()> {
+        // open requested file
         let mut existing_file = match File::open(&self.new_pathname) {
             Ok(file) => file,
             Err(_) => return Err(()),
@@ -116,13 +117,13 @@ impl<'p> RequestedImage<'p> {
             }
         };
 
-        // encode image
-        let mut body = Vec::new();
+        // encode the image
+        let mut contents = Vec::new();
         {
-            let mut encoder = Encoder::with_chunks_size(&mut body, 8192);
-            encoder.write_all(&buf).unwrap();
+            let mut encoder = Encoder::with_chunks_size(&mut contents, 8192);
+            encoder.write_all(&buf).expect("Failed to encode image");
         }
 
-        Ok(body)
+        Ok(contents)
     }
 }

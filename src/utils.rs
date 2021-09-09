@@ -27,8 +27,17 @@ pub fn get_root_dir<'a>() -> &'a str {
 /// Arguments:
 /// * path - String
 ///
-pub fn get_file_path(path: impl AsRef<Path>) -> PathBuf {
+pub fn get_static_file(path: impl AsRef<Path>) -> PathBuf {
     Path::new(relative!("static")).join(path)
+}
+
+/// Joins a pathbuf with a relative path to the `public` folder.
+///
+/// Arguments:
+/// * path - String
+///
+pub fn get_public_file(path: impl AsRef<Path>) -> PathBuf {
+    Path::new(relative!("public")).join(path)
 }
 
 /// Converts a path buffer into a string.

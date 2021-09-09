@@ -2,7 +2,7 @@ use crate::http::{QueryString, Request, Response, ResponseType};
 use crate::lrucache::Cache;
 use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
-use std::path::PathBuf;
+use std::path::Path;
 
 pub fn image(cache: Cache, req: Request, res: Response) {
     let mut path = req.path;
@@ -14,7 +14,7 @@ pub fn image(cache: Cache, req: Request, res: Response) {
         path = &path[..i];
     }
 
-    let path = [path].iter().collect::<PathBuf>();
+    let path = Path::new(path);
     let ratio = query.get("ratio");
 
     // ensure that path is a directory
@@ -35,7 +35,7 @@ pub fn image(cache: Cache, req: Request, res: Response) {
     }
 
     // initialize requested image
-    let img = RequestedImage::new(&path, ratio);
+    let img = RequestedImage::new(&path, ratio, false);
 
     // ensure the requested image has a valid content type
     if img.content_type.is_none() {
@@ -64,10 +64,17 @@ pub fn image(cache: Cache, req: Request, res: Response) {
             Err(_) => return res.set_status(500).send(server_error_file()),
         };
 
+        // log the requested file and ratio
+        let mut img_query = String::new();
+        if ratio > 0 {
+            img_query = format!("?ratio={}", ratio)
+        }
+
         println!(
-            "[{}] - Saved {} image into LRU cache.",
+            "[{}] - Saved {}{} image into LRU cache",
             req.timestamp.format("%B %d %Y, %I:%M:%S %P"),
-            req.path,
+            img.filename,
+            img_query
         );
     }
 

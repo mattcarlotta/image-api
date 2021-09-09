@@ -1,5 +1,5 @@
 use crate::http::ContentType;
-use crate::utils::{get_file_path, get_root_dir, get_string_path};
+use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path};
 use chunked_transfer::Encoder;
 use image::imageops::FilterType;
 use image::GenericImageView;
@@ -12,6 +12,7 @@ use std::path::{Path, PathBuf};
 pub struct RequestedImage<'p> {
     pub content_type: Option<ContentType>,
     pub path: PathBuf,
+    pub filename: String,
     pub new_pathname: String,
     pub new_pathname_buf: PathBuf,
     pub ratio: u8,
@@ -28,40 +29,44 @@ impl<'p> RequestedImage<'p> {
     ///
     /// * path - PathBuf
     /// * ratio - u8
+    /// * public - bool
     ///
-    pub fn new(path: &'p Path, ratio: u8) -> Self {
+    pub fn new(path: &'p Path, ratio: u8, public: bool) -> Self {
         // if present, strip any included "_<ratio>" from the filename
-        let filename: String = get_string_path(path.to_path_buf())
+        let filename = get_string_path(path.to_path_buf())
             .chars()
-            .filter(|c| *c != '/')
-            .filter(|c| !c.is_digit(10))
-            .filter(|c| *c != '_')
-            .collect();
+            .filter(|c| *c != '/' && *c != '_' && !c.is_digit(10))
+            .collect::<String>();
 
-        // retrieve file path to "static" folder => <rootdir><static><filename>.<ext>
-        let filepath = get_file_path(filename);
+        // retrieve file path to "static" or "public" folder => <rootdir><filepath><filename>.<ext>
+        let filepath = if !public {
+            get_static_file(&filename)
+        } else {
+            get_public_file(&filename)
+        };
+
         let ext = path.extension().and_then(OsStr::to_str);
 
-        // or assign pathname with ratio: <rootdir><filename>_<ratio>.<ext>
-        let pathname = match ratio == 0 {
-            true => get_string_path(&filepath),
-            false => {
-                // retrieve image file stem => <filename>
-                let stem = &filepath
-                    .file_stem()
-                    .and_then(OsStr::to_str)
-                    .unwrap_or_else(|| panic!("Image is missing stem"));
+        // conditionally assign pathname with ratio: <rootdir><filename>_<ratio>.<ext>
+        let pathname = if ratio == 0 {
+            get_string_path(&filepath)
+        } else {
+            // retrieve image file stem => <filename>
+            let stem = &filepath
+                .file_stem()
+                .and_then(OsStr::to_str)
+                .unwrap_or_else(|| panic!("Image is missing stem"));
 
-                // retrieve image file stem => <ext>
-                format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, &ext.unwrap())
-            }
+            // retrieve image file stem => <ext>
+            format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, &ext.unwrap())
         };
 
         RequestedImage {
             content_type: ext.and_then(ContentType::from_extension),
-            path: get_file_path(&filepath),
+            path: Path::new(&filepath).to_path_buf(),
+            filename,
             new_pathname: pathname.to_string(),
-            new_pathname_buf: [&pathname].iter().collect(),
+            new_pathname_buf: Path::new(&pathname).to_path_buf(),
             ratio,
             ext: ext.unwrap(),
         }

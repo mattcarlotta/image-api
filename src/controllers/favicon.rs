@@ -5,7 +5,7 @@ use std::path::Path;
 
 pub fn favicon(_req: Request, res: Response) {
     let path = Path::new("favicon.ico");
-    let img = RequestedImage::new(&path, 0, true);
+    let img = RequestedImage::new(path, 0, true);
 
     let body = match img.read() {
         Ok(contents) => contents,

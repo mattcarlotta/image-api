@@ -35,7 +35,7 @@ pub fn image(cache: Cache, req: Request, res: Response) {
     }
 
     // initialize requested image
-    let img = RequestedImage::new(&path, ratio, false);
+    let img = RequestedImage::new(path, ratio, false);
 
     // ensure the requested image has a valid content type
     if img.content_type.is_none() {

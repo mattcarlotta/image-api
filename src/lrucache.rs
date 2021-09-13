@@ -76,6 +76,7 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
     /// assert!(cache.contains_key(&"bar"));
     /// assert!(!cache.contains_key(&"foo"));
     /// ```
+    #[allow(clippy::map_entry)]
     pub fn insert(&mut self, key: K, value: V) -> Option<V> {
         if self.table.contains_key(&key) {
             self.access(&key);

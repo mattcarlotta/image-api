@@ -78,7 +78,7 @@ impl<'a> Response<'a> {
     /// * body: ResponseType
     ///
     pub fn send(self, body: ResponseType) {
-        let (body, headers) = ResponseType::parse(body);
+        let (body, data_type) = ResponseType::parse(body);
 
         let header = format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse());
         let date = format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"));
@@ -89,7 +89,7 @@ impl<'a> Response<'a> {
             "Server: rustybuckets/0.0.1",
             &date,
             &ct,
-            headers.as_str(),
+            data_type.as_str(),
             "X-Content-Type-Options: nosniff",
             "X-Frame-Options: DENY",
             "\r\n",

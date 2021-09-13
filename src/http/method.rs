@@ -68,6 +68,12 @@ impl Display for Method {
 mod test {
     use super::Method;
     use std::str::FromStr;
+    
+    #[test]
+    fn method_is_valid() {
+        assert!(Method::Get.is_valid());
+        assert!(!Method::Invalidmethod.is_valid());
+    }
 
     #[test]
     fn method_convert_as_str() {

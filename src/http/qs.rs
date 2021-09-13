@@ -9,7 +9,7 @@ impl<'buf> QueryString<'buf> {
     /// Initializes a query string hash table
     pub fn new() -> Self {
         QueryString {
-            table: HashMap::new(),
+            table: HashMap::with_capacity(5),
         }
     }
 
@@ -22,6 +22,10 @@ impl<'buf> QueryString<'buf> {
     /// where any duplicated keys are overriden
     pub fn parse(&mut self, s: &'buf str) {
         for sub_str in s.split('&') {
+            if self.table.len() == 5 {
+                return;
+            }
+
             let mut key = sub_str;
             let mut val = "";
 
@@ -43,3 +47,33 @@ impl<'buf> QueryString<'buf> {
         self.table.get(key).copied()
     }
 }
+
+
+#[cfg(test)]
+mod test {
+    use super::QueryString;
+
+    #[test]
+    fn parse_and_get_queries() {
+        let mut query = QueryString::new();
+        assert_eq!(query.table.len(), 0);
+
+        let queries = "ratio=1&width=100&ratio=500&height=100&pixels=20&resize=40&file=12345&ext=png&ratio=100";
+        query.parse(queries);
+
+        // limits queries to first 5
+        assert_eq!(query.table.len(), 5);
+
+        // only saves the most recent entry of a duplicated query
+        assert_eq!(query.get("ratio"), Some("500"));
+
+        // parses other queries
+        assert_eq!(query.get("width"), Some("100"));
+        assert_eq!(query.get("height"), Some("100"));
+        assert_eq!(query.get("pixels"), Some("20"));
+        assert_eq!(query.get("resize"), Some("40"));
+
+        // does not parse additional entries after 5
+        assert_eq!(query.get("ext"), None);
+    }
+} 

@@ -70,7 +70,7 @@ mod test {
     use std::str::FromStr;
 
     #[test]
-    fn convert_as_str() {
+    fn method_convert_as_str() {
         assert_eq!(Method::Connect.as_str(), "CONNECT");
         assert_eq!(Method::Delete.as_str(), "DELETE");
         assert_eq!(Method::Get.as_str(), "GET");
@@ -84,7 +84,7 @@ mod test {
     }
 
     #[test]
-    fn convert_from_str() {
+    fn method_convert_from_str() {
         assert_eq!(Method::from_str("CONNECT"), Ok(Method::Connect));
         assert_eq!(Method::from_str("DELETE"), Ok(Method::Delete));
         assert_eq!(Method::from_str("GET"), Ok(Method::Get));

@@ -12,6 +12,7 @@ use std::net::TcpStream;
 /// * stream: mut TcpStream
 /// * cache: Cache
 ///
+#[allow(clippy::unused_io_amount)]
 pub fn controller(mut stream: TcpStream, cache: Cache) {
     let timestamp = Utc::now();
     let mut buffer = [0; 1024];

@@ -65,7 +65,7 @@ mod test {
     use super::ContentType;
 
     #[test]
-    fn convert_as_str() {
+    fn contenttype_convert_as_str() {
         assert_eq!(ContentType::Png.as_str(), "image/png");
         assert_eq!(ContentType::Bmp.as_str(), "image/bmp");
         assert_eq!(ContentType::Jpg.as_str(), "image/jpg");
@@ -79,7 +79,7 @@ mod test {
     }
 
     #[test]
-    fn parse_from_extension() {
+    fn contenttype_parse_from_extension() {
         assert_eq!(ContentType::from_extension("png"), Some(ContentType::Png));
         assert_eq!(ContentType::from_extension("gif"), Some(ContentType::Gif));
         assert_eq!(ContentType::from_extension("bmp"), Some(ContentType::Bmp));

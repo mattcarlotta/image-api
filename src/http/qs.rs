@@ -73,7 +73,7 @@ mod test {
         assert_eq!(query.get("pixels"), Some("20"));
         assert_eq!(query.get("resize"), Some("40"));
 
-        // does not parse additional entries after 5
+        // does not parse additional entries after parsing/adding 5
         assert_eq!(query.get("ext"), None);
     }
 } 

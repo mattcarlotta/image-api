@@ -51,11 +51,8 @@ pub fn image(cache: Cache, req: Request, res: Response) {
         }
 
         // create a new image from original if one doesn't exist already
-        if !img.exists() {
-            match img.save() {
-                Ok(()) => (),
-                Err(_) => return res.set_status(500).send(server_error_file()),
-            };
+        if !img.exists() && img.save().is_err() {
+            return res.set_status(500).send(server_error_file());
         }
 
         // read the requested image from disk and encode it

@@ -20,7 +20,7 @@ mod lrucache;
 mod reqimage;
 mod utils;
 
-pub fn main() {
+fn main() {
     let address = env::var("host").unwrap_or_else(|_| "127.0.0.1".to_string());
     let port = env::var("port").unwrap_or_else(|_| "5000".to_string());
     let host = format!("{}:{}", address, port);
@@ -44,18 +44,12 @@ pub fn main() {
 
 #[cfg(test)]
 mod test {
-    use super::main;
     use reqwest::blocking::get;
     use reqwest::header::{CONTENT_TYPE, TRANSFER_ENCODING};
-    use std::thread;
 
     #[test]
     #[ignore]
     fn e2e_integrations() {
-        let handler = thread::spawn(|| {
-            main();
-        });
-
         let hello_res = get("http://localhost:5000").unwrap();
         assert!(hello_res.status().is_success());
         assert_eq!(
@@ -74,7 +68,5 @@ mod test {
         assert!(img_res.status().is_success());
         assert_eq!(img_res.headers().get(CONTENT_TYPE).unwrap(), "image/png");
         assert_eq!(img_res.headers().get(TRANSFER_ENCODING).unwrap(), "chunked");
-
-        handler.join().unwrap();
     }
 }

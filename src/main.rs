@@ -46,10 +46,20 @@ fn main() {
 mod test {
     use reqwest::blocking::get;
     use reqwest::header::{CONTENT_TYPE, TRANSFER_ENCODING};
+    use std::process::Command;
+    use std::{thread, time::Duration};
 
     #[test]
     #[ignore]
     fn e2e_integrations() {
+        let mut server = Command::new("cargo")
+            .arg("run")
+            .arg("--release")
+            .spawn()
+            .expect("Failed to spin up server");
+
+        thread::sleep(Duration::from_secs(1));
+
         let hello_res = get("http://localhost:5000").unwrap();
         assert!(hello_res.status().is_success());
         assert_eq!(
@@ -68,5 +78,7 @@ mod test {
         assert!(img_res.status().is_success());
         assert_eq!(img_res.headers().get(CONTENT_TYPE).unwrap(), "image/png");
         assert_eq!(img_res.headers().get(TRANSFER_ENCODING).unwrap(), "chunked");
+
+        server.kill().expect("Server wasn't running");
     }
 }

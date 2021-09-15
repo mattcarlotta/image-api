@@ -27,7 +27,7 @@ pub struct Response<'a> {
     status_code: StatusCode,
     method: Method,
     content_type: ContentType,
-    path: &'a str,
+    path: String,
     timestamp: DateTime<Utc>,
     stream: &'a mut TcpStream,
 }
@@ -39,11 +39,11 @@ impl<'a> Response<'a> {
     /// * req: Request
     /// * stream: &mut TcpStream
     ///
-    pub fn new(req: &Request<'a>, stream: &'a mut TcpStream) -> Self {
+    pub fn new(req: &Request, stream: &'a mut TcpStream) -> Self {
         Self {
             status_code: StatusCode::Ok,
             method: req.method,
-            path: req.path,
+            path: req.path.to_owned(),
             content_type: ContentType::Html,
             timestamp: req.timestamp,
             stream,
@@ -113,5 +113,3 @@ impl<'a> Response<'a> {
         self.stream.flush().unwrap()
     }
 }
-
-

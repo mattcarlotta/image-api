@@ -29,7 +29,7 @@ pub fn controller(mut stream: TcpStream, cache: Cache) {
 
     // matches requests via requested method and path
     match req.method {
-        Method::Get => match req.path {
+        Method::Get => match req.path.as_str() {
             "/" => controllers::hello(req, res),
             "/favicon.ico" => controllers::favicon(req, res),
             _ => controllers::image(cache, req, res),

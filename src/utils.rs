@@ -1,6 +1,6 @@
 use crate::http::ResponseType;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 /// Converts a path into a string.
 ///
@@ -56,4 +56,30 @@ pub fn get_public_file(path: impl AsRef<Path>) -> PathBuf {
 ///
 pub fn public_path(path: &'_ str) -> String {
     get_string_path(get_public_file(path))
+}
+
+/// Normalizes a path file to a pathbuf
+///
+/// Arguments:
+/// * path - &str
+///
+pub fn normalize_path(path: impl AsRef<Path>) -> PathBuf {
+    let ends_with_slash = path.as_ref().to_str().map_or(false, |s| s.ends_with('/'));
+    let mut normalized = PathBuf::new();
+    for component in path.as_ref().components() {
+        match &component {
+            Component::ParentDir => {
+                if !normalized.pop() {
+                    normalized.push(component);
+                }
+            }
+            _ => {
+                normalized.push(component);
+            }
+        }
+    }
+    if ends_with_slash {
+        normalized.push("");
+    }
+    normalized
 }

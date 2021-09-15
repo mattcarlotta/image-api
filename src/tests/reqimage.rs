@@ -12,7 +12,7 @@ fn valid_request_static_image() {
         fs::remove_file(&old_file).ok();
     }
 
-    let path = Path::new("/placeholder.png");
+    let path = Path::new("placeholder.png");
 
     let img = RequestedImage::new(path, 35, false);
 
@@ -37,7 +37,7 @@ fn valid_request_static_image() {
 
 #[test]
 fn valid_request_public_image() {
-    let path = Path::new("/favicon.ico");
+    let path = Path::new("favicon.ico");
 
     let img = RequestedImage::new(path, 0, true);
 
@@ -54,7 +54,7 @@ fn valid_request_public_image() {
 #[test]
 #[should_panic(expected = "Failed to open image.")]
 fn invalid_request_image() {
-    let path = Path::new("/malformedimageext.p");
+    let path = Path::new("malformedimageext.p");
 
     let img = RequestedImage::new(path, 0, false);
 

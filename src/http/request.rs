@@ -1,15 +1,16 @@
 use super::Method;
+use crate::utils::normalize_path;
 use chrono::{DateTime, Utc};
 use std::str::FromStr;
 
 #[derive(Debug)]
-pub struct Request<'a> {
+pub struct Request {
     pub method: Method,
-    pub path: &'a str,
+    pub path: String,
     pub timestamp: DateTime<Utc>,
 }
 
-impl<'a> Request<'a> {
+impl<'a> Request {
     /// Parses headers from the incoming request buffer
     ///
     /// Arguments:
@@ -20,22 +21,24 @@ impl<'a> Request<'a> {
         let mut headers = [httparse::EMPTY_HEADER; 64];
         let mut req = httparse::Request::new(&mut headers);
 
+        let mut path = String::new();
+        let mut method = Method::Invalidmethod;
         // attempt to parse the path and method from the incoming request header
-        let (path, method) = match req.parse(buffer) {
-            Ok(r) => {
-                let path = req.path.unwrap_or("");
-                let method = req.method.unwrap_or("");
-                let mut method = Method::from_str(method).unwrap();
+        if let Ok(r) = req.parse(buffer) {
+            let parsed_path = req.path.unwrap_or("");
+            let parsed_method = req.method.unwrap_or("");
+            method = Method::from_str(parsed_method).unwrap();
 
-                // if the request/path are invalid sets method to invalid
-                // which will be caught in the main controller
-                if r.is_partial() || path.is_empty() {
-                    method = Method::Invalidmethod;
-                }
-
-                (path, method)
+            // if the request/path are invalid sets method to invalid
+            // which will be caught in the main controller
+            if r.is_partial() || parsed_path.is_empty() {
+                method = Method::Invalidmethod;
             }
-            Err(_) => ("", Method::Invalidmethod),
+
+            path = normalize_path(parsed_path)
+                .into_os_string()
+                .into_string()
+                .unwrap();
         };
 
         Request {

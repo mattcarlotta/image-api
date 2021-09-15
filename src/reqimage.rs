@@ -35,7 +35,7 @@ impl<'p> RequestedImage<'p> {
         // if present strip any included "_<ratio>" from the filename
         let filename = get_string_path(path.to_path_buf())
             .chars()
-            .filter(|c| *c != '/' && *c != '_' && !c.is_digit(10))
+            .filter(|c| *c != '_' && !c.is_digit(10))
             .collect::<String>();
 
         // retrieve file path to "static" or "public" folder: <rootdir><filepath><filename>.<ext>
@@ -51,6 +51,16 @@ impl<'p> RequestedImage<'p> {
         let pathname = if ratio == 0 {
             get_string_path(&filepath)
         } else {
+            let dirs = get_string_path(&path);
+            let dirs = dirs.split('/').collect::<Vec<&str>>();
+
+            let mut directories = String::new();
+            if dirs.len() > 1 {
+                for str in dirs[0..dirs.len() - 1].iter() {
+                    let d = [str, "/"].join("");
+                    directories.push_str(&d);
+                }
+            }
             // retrieve image file stem => <filename>
             let stem = &filepath
                 .file_stem()
@@ -58,7 +68,14 @@ impl<'p> RequestedImage<'p> {
                 .unwrap_or_else(|| panic!("Image is missing stem"));
 
             // format image file: <rootdir><filename>_<ratio>.<ext>
-            format!("{}/{}_{}.{}", get_root_dir(), stem, ratio, &ext.unwrap())
+            format!(
+                "{}/{}{}_{}.{}",
+                get_root_dir(),
+                directories,
+                stem,
+                ratio,
+                &ext.unwrap()
+            )
         };
 
         RequestedImage {

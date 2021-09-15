@@ -1,11 +1,12 @@
+use std::path::Path;
+
 use crate::http::{QueryString, Request, Response, ResponseType};
 use crate::lrucache::Cache;
 use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
-use std::path::Path;
 
 pub fn image(cache: Cache, req: Request, res: Response) {
-    let mut path = req.path;
+    let mut path = req.path.as_str();
     let mut query = QueryString::new();
 
     // if a query is found, parse it and remove it from the path
@@ -14,7 +15,7 @@ pub fn image(cache: Cache, req: Request, res: Response) {
         path = &path[..i];
     }
 
-    let path = Path::new(path);
+    let path = Path::new(path.strip_prefix('/').unwrap());
     let ratio = query.get("ratio");
 
     // ensure that path is a directory

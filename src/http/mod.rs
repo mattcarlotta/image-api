@@ -13,3 +13,5 @@ mod request;
 mod response;
 mod router;
 mod status;
+#[cfg(test)]
+mod tests;

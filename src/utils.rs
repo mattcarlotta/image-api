@@ -70,8 +70,8 @@ pub fn parse_dirs(path: impl AsRef<Path>) -> String {
     let mut directories = String::new();
     if dirs.len() > 1 {
         for dir in dirs[0..dirs.len() - 1].iter() {
-            let d = [dir, "/"].join("");
-            directories.push_str(&d);
+            let d = [dir, "/"].concat();
+            directories.push_str(d.as_str());
         }
     }
 

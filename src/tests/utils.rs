@@ -29,6 +29,13 @@ fn test_get_public_file() {
 }
 
 #[test]
+fn test_parse_dirs() {
+    let path = normalize_path("/a/b////c////////d/e//f.ext");
+
+    assert_eq!(parse_dirs(path), "/a/b/c/d/e/");
+}
+
+#[test]
 fn test_public_file() {
     assert!(public_path("hello.html").contains("public/hello.html"));
 }

@@ -35,10 +35,8 @@ impl<'a> Request {
                 method = Method::Invalidmethod;
             }
 
-            path = normalize_path(parsed_path)
-                .into_os_string()
-                .into_string()
-                .unwrap();
+            // normalizes path to strip extra slashes
+            path = format!("{}", normalize_path(parsed_path).display());
         };
 
         Request {

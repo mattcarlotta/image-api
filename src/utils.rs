@@ -58,6 +58,26 @@ pub fn public_path(path: &'_ str) -> String {
     get_string_path(get_public_file(path))
 }
 
+/// Parses requsted path directories as a string
+///
+/// Arguments:
+/// path: Path
+///
+pub fn parse_dirs(path: impl AsRef<Path>) -> String {
+    let dirs = get_string_path(&path);
+    let dirs = dirs.split('/').collect::<Vec<&str>>();
+
+    let mut directories = String::new();
+    if dirs.len() > 1 {
+        for dir in dirs[0..dirs.len() - 1].iter() {
+            let d = [dir, "/"].join("");
+            directories.push_str(&d);
+        }
+    }
+
+    directories
+}
+
 /// Normalizes a path file to a pathbuf
 ///
 /// Arguments:

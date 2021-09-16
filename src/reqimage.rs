@@ -1,5 +1,5 @@
 use crate::http::ContentType;
-use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path};
+use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path, parse_dirs};
 use chunked_transfer::Encoder;
 use image::imageops::FilterType;
 use image::GenericImageView;
@@ -51,16 +51,9 @@ impl<'p> RequestedImage<'p> {
         let pathname = if ratio == 0 {
             get_string_path(&filepath)
         } else {
-            let dirs = get_string_path(&path);
-            let dirs = dirs.split('/').collect::<Vec<&str>>();
+            // parse any requested directories
+            let directories = parse_dirs(path);
 
-            let mut directories = String::new();
-            if dirs.len() > 1 {
-                for str in dirs[0..dirs.len() - 1].iter() {
-                    let d = [str, "/"].join("");
-                    directories.push_str(&d);
-                }
-            }
             // retrieve image file stem => <filename>
             let stem = &filepath
                 .file_stem()

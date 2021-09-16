@@ -13,17 +13,17 @@ pub fn get_string_path(path: impl AsRef<Path>) -> String {
 
 /// Returns a boilerplate 400 Bad Request HTML document
 pub fn bad_req_file() -> ResponseType {
-    ResponseType::Text(fs::read_to_string(public_path("400.html")).unwrap())
+    ResponseType::Html(fs::read_to_string(public_path("400.html")).unwrap())
 }
 
 /// Returns a boilerplate 404 Not Found HTML document
 pub fn file_not_found() -> ResponseType {
-    ResponseType::Text(fs::read_to_string(public_path("404.html")).unwrap())
+    ResponseType::Html(fs::read_to_string(public_path("404.html")).unwrap())
 }
 
 /// Returns a boilerplate 500 Server Error HTML document
 pub fn server_error_file() -> ResponseType {
-    ResponseType::Text(fs::read_to_string(public_path("500.html")).unwrap())
+    ResponseType::Html(fs::read_to_string(public_path("500.html")).unwrap())
 }
 
 /// Returns the root directory of "static" as a string

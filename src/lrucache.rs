@@ -85,7 +85,10 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
             entry.value = Some(value);
             old
         } else {
-            self.ensure_room();
+            // Ensure there is enough room
+            if self.capacity == self.len() {
+                self.remove_last();
+            };
             // Update old head
             let idx = self.entries.len();
             if let Some(e) = self.first {
@@ -211,23 +214,17 @@ impl<K: Clone + Hash + Eq, V> LRUCache<K, V> {
         }
     }
 
-    fn ensure_room(&mut self) {
-        if self.capacity == self.len() {
-            self.remove_last();
-        }
-    }
-
     ///
     /// Removes the oldest item in the cache.
     ///
     fn remove_last(&mut self) {
-        if let Some(idx) = self.last {
-            self.remove_from_list(idx);
-            let key = &self.entries[idx].key;
-            self.table.remove(key);
-        }
-        if self.last.is_none() {
-            self.first = None;
+        match self.last {
+            Some(idx) => {
+                self.remove_from_list(idx);
+                let key = &self.entries[idx].key;
+                self.table.remove(key);
+            }
+            None => self.first = None,
         }
     }
 }

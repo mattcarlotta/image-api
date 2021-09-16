@@ -6,6 +6,7 @@ use std::net::TcpStream;
 #[derive(Debug)]
 pub enum ResponseType {
     Chunked(Vec<u8>),
+    Html(String),
     Text(String),
 }
 
@@ -14,7 +15,7 @@ impl ResponseType {
     pub fn parse(self) -> (Vec<u8>, String) {
         match self {
             ResponseType::Chunked(body) => (body, "Transfer-Encoding: chunked".to_string()),
-            ResponseType::Text(body) => (
+            ResponseType::Html(body) | ResponseType::Text(body) => (
                 body.to_owned().into_bytes(),
                 format!("Content-Length: {}", body.len()),
             ),

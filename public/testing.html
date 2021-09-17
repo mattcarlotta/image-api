@@ -44,101 +44,99 @@
       }
     </style>
   </head>
-  <body>
+  <body onLoad="refreshWindow();">
     <div class="page-container">
       <h1>Testing Suite!</h1>
       <p class="mem-peak">Memory Peak: <span id="peak">0.00 MB</span></p>
       <p class="mem-use">Memory Use: <span id="used">0.00 MB</span></p>
       <div class="images-container"></div>
     </div>
-  </body>
-  <script type="application/javascript">
-    function formatBytes(a, b = 2, k = 1024) {
-      with (Math) {
-        let d = floor(log(a) / log(k));
-        return 0 == a
-          ? "0 Bytes"
-          : parseFloat((a / pow(k, d)).toFixed(max(0, b))) +
-              " " +
-              ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d];
+    <script type="application/javascript">
+      function refreshWindow() {
+        setTimeout("location.reload(true);", 5000);
       }
-    }
+      function formatBytes(a, b = 2, k = 1024) {
+        with (Math) {
+          let d = floor(log(a) / log(k));
+          return 0 == a
+            ? "0 Bytes"
+            : parseFloat((a / pow(k, d)).toFixed(max(0, b))) +
+                " " +
+                ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"][d];
+        }
+      }
 
-    var pictures = [
-      "a",
-      "b",
-      "c",
-      "d",
-      "e",
-      "f",
-      "g",
-      "h",
-      "i",
-      "j",
-      "k",
-      "l",
-      "m",
-      "n",
-      "o",
-      "p",
-      "q",
-      "r",
-      "s",
-      "t",
-      "u",
-    ];
-    var ratios = [0, 10, 35, 50, 75, 90];
+      var pictures = [
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+      ];
+      var ratios = [0, 10, 35, 50, 75, 90];
 
-    function randomIndex() {
-      return Math.floor(Math.random() * ratios.length);
-    }
+      function randomIndex() {
+        return Math.floor(Math.random() * ratios.length);
+      }
 
-    function randomizeImages() {
-      var container = document.querySelector(".images-container");
-      container.innerHTML = "";
+      function randomizeImages() {
+        var container = document.querySelector(".images-container");
+        container.innerHTML = "";
 
-      pictures.forEach(function (p) {
-        var imgContainer = document.createElement("div");
-        imgContainer.classList.add("img-container");
-        var imgTitle = `/${p}/${p}.png?ratio=${ratios[randomIndex()]}`; //ratios[randomIndex()]
+        pictures.forEach(function (p) {
+          var imgContainer = document.createElement("div");
+          imgContainer.classList.add("img-container");
+          var imgTitle = `/${p}/${p}.png?ratio=${ratios[randomIndex()]}`; //ratios[randomIndex()]
 
-        var img = document.createElement("img");
-        img.classList.add("img");
-        img.src = `http://localhost:5000/${imgTitle}`;
-        img.alt = imgTitle;
+          var img = document.createElement("img");
+          img.classList.add("img");
+          img.src = `http://localhost:5000/${imgTitle}`;
+          img.alt = imgTitle;
 
-        var title = document.createElement("p");
-        title.classList.add("title");
-        title.innerHTML = imgTitle;
+          var title = document.createElement("p");
+          title.classList.add("title");
+          title.innerHTML = imgTitle;
 
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(title);
-        container.appendChild(imgContainer);
-      });
-    }
-
-    function getMemStats() {
-      fetch("http://localhost:5000/memory").then(function (res) {
-        res.text().then(function (text) {
-          var stats = text.split(",");
-          var memPeak = document.querySelector("#peak");
-
-          var memPeakUsage = formatBytes(stats[0]);
-          memPeak.innerHTML = memPeakUsage;
-
-          var memUse = document.querySelector("#used");
-          var memUsage = formatBytes(stats[1]);
-          memUse.innerHTML = memUsage;
+          imgContainer.appendChild(img);
+          imgContainer.appendChild(title);
+          container.appendChild(imgContainer);
         });
-      });
-    }
+      }
 
-    randomizeImages();
-    getMemStats();
+      function getMemStats() {
+        fetch("http://localhost:5000/memory").then(function (res) {
+          res.text().then(function (text) {
+            var stats = text.split(",");
+            var memPeak = document.querySelector("#peak");
 
-    setInterval(function () {
+            var memPeakUsage = formatBytes(parseInt(stats[0] * 100, 10));
+            memPeak.innerHTML = memPeakUsage;
+
+            var memUse = document.querySelector("#used");
+            var memUsage = formatBytes(parseInt(stats[1] * 100, 10));
+            memUse.innerHTML = memUsage;
+          });
+        });
+      }
+
       randomizeImages();
       getMemStats();
-    }, 5000);
-  </script>
+    </script>
+  </body>
 </html>

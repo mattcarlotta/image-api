@@ -11,31 +11,30 @@ pub fn memory(_req: Request, res: Response) {
         return res.set_status(404).send(file_not_found());
     }
 
-    let pid = format!("/proc/{}/status", id());
-
-    let mut existing_file = match File::open(pid) {
+    let mut existing_file = match File::open(format!("/proc/{}/status", id())) {
         Ok(file) => file,
-        Err(e) => panic!("Unable to open process: {}", e),
+        Err(e) => panic!("Unable to open process file: {}", e),
     };
 
     let mut buf = Vec::new();
     match existing_file.read_to_end(&mut buf) {
         Ok(vec) => vec,
-        Err(e) => panic!("Unable to read the contents of the image: {}", e),
+        Err(e) => panic!("Unable to read the contents of the process file: {}", e),
     };
 
     let stats = match String::from_utf8(buf) {
         Ok(s) => s,
-        Err(e) => panic!("Unable to read the contents of the image: {}", e),
+        Err(e) => panic!("Unable to strinify the contents of the process file: {}", e),
     };
 
     let body = stats
         .lines()
-        .filter(|l| l.contains("VmSize"))
+        .filter(|l| l.contains("VmSize") || l.contains("VmPeak"))
         .collect::<String>()
-        .chars()
-        .filter(|c| c.is_numeric())
-        .collect::<String>();
+        .split_whitespace()
+        .filter(|l| l.parse::<i64>().is_ok())
+        .collect::<Vec<&str>>()
+        .join(",");
 
-    res.send(ResponseType::Text(body))
+    res.set_content("txt").send(ResponseType::Text(body))
 }

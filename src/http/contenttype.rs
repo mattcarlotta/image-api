@@ -12,6 +12,7 @@ pub enum ContentType {
     Svg,
     Ico,
     Html,
+    Text,
     Invalid,
 }
 
@@ -27,6 +28,7 @@ impl ContentType {
             ContentType::Avif => "image/avif",
             ContentType::Svg => "image/svg",
             ContentType::Ico => "image/ico",
+            ContentType::Text => "text/plain; charset=utf-8",
             ContentType::Html => "text/html; charset=utf-8",
             _ => "",
         }
@@ -48,6 +50,7 @@ impl ContentType {
             "avif" => Some(ContentType::Avif),
             "svg" => Some(ContentType::Svg),
             "ico" => Some(ContentType::Ico),
+            "txt" => Some(ContentType::Text),
             "html" => Some(ContentType::Html),
             _ => None,
         }

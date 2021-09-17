@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use super::{ContentType, Method, Request, StatusCode};
 use chrono::prelude::{DateTime, Utc};
 use std::io::prelude::Write;

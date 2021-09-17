@@ -47,8 +47,6 @@
   <body onLoad="refreshWindow();">
     <div class="page-container">
       <h1>Testing Suite!</h1>
-      <p class="mem-peak">Memory Peak: <span id="peak">0.00 MB</span></p>
-      <p class="mem-use">Memory Use: <span id="used">0.00 MB</span></p>
       <div class="images-container"></div>
     </div>
     <script type="application/javascript">
@@ -102,7 +100,7 @@
         pictures.forEach(function (p) {
           var imgContainer = document.createElement("div");
           imgContainer.classList.add("img-container");
-          var imgTitle = `/${p}/${p}.png?ratio=${ratios[randomIndex()]}`; //ratios[randomIndex()]
+          var imgTitle = `/${p}/${p}.png?ratio=${ratios[randomIndex()]}`;
 
           var img = document.createElement("img");
           img.classList.add("img");
@@ -119,24 +117,7 @@
         });
       }
 
-      function getMemStats() {
-        fetch("http://localhost:5000/memory").then(function (res) {
-          res.text().then(function (text) {
-            var stats = text.split(",");
-            var memPeak = document.querySelector("#peak");
-
-            var memPeakUsage = formatBytes(parseInt(stats[0] * 100, 10));
-            memPeak.innerHTML = memPeakUsage;
-
-            var memUse = document.querySelector("#used");
-            var memUsage = formatBytes(parseInt(stats[1] * 100, 10));
-            memUse.innerHTML = memUsage;
-          });
-        });
-      }
-
       randomizeImages();
-      getMemStats();
     </script>
   </body>
 </html>

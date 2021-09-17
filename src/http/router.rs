@@ -33,7 +33,6 @@ pub fn controller(mut stream: TcpStream, cache: Cache) {
             "/" => controllers::hello(req, res),
             "/favicon.ico" => controllers::favicon(req, res),
             "/testing" => controllers::testing(req, res),
-            "/memory" => controllers::memory(req, res),
             _ => controllers::image(cache, req, res),
         },
         _ => controllers::badrequest(req, res),

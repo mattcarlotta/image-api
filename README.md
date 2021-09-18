@@ -28,4 +28,4 @@ viewport is a waste of bandwidth and may result in image distortion. Utilizing a
 
 ### Flow Chart
 
-<img src="https://i.imgur.com/B69NkVk.png" />
+<img src="https://i.imgur.com/m7j3XOU.png" />

@@ -87,6 +87,9 @@ pub fn normalize_path(path: impl AsRef<Path>) -> PathBuf {
     let ends_with_slash = path.as_ref().to_str().map_or(false, |s| s.ends_with('/'));
     let mut normalized = PathBuf::new();
     for component in path.as_ref().components() {
+        if component.as_os_str().to_str().unwrap_or("").contains("..") {
+            continue;
+        }
         match &component {
             Component::ParentDir => {
                 if !normalized.pop() {

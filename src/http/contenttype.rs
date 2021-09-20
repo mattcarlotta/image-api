@@ -21,6 +21,7 @@ impl ContentType {
     pub fn as_str(&self) -> &str {
         match *self {
             ContentType::Png => "image/png",
+            ContentType::Gif => "image/gif",
             ContentType::Bmp => "image/bmp",
             ContentType::Jpg => "image/jpg",
             ContentType::Jpeg => "image/jpeg",
@@ -30,7 +31,7 @@ impl ContentType {
             ContentType::Ico => "image/ico",
             ContentType::Text => "text/plain; charset=utf-8",
             ContentType::Html => "text/html; charset=utf-8",
-            _ => "",
+            ContentType::Invalid => "",
         }
     }
 

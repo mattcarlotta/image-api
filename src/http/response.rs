@@ -92,6 +92,7 @@ impl<'a> Response<'a> {
             &date,
             &ct,
             data_type.as_str(),
+            "Strict-Transport-Security: max-age=63072000",
             "X-Content-Type-Options: nosniff",
             "X-Frame-Options: DENY",
             "\r\n",

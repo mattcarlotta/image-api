@@ -12,7 +12,7 @@ fn e2e_integrations() {
         .spawn()
         .expect("Failed to spin up server");
 
-    thread::sleep(Duration::from_secs(1));
+    thread::sleep(Duration::from_secs(5));
 
     let hello_res = get("http://localhost:5000").unwrap();
     assert!(hello_res.status().is_success());

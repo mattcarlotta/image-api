@@ -1,3 +1,4 @@
 /target
+*.profraw
 *.png
 /static/*[0-9].*

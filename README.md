@@ -5,20 +5,30 @@ A custom built API server to dynamically resize images based upon a URL query.
 ### Usage
 
 ```
-http://127.0.0.1:5000/placeholder.png (original image)
-http://127.0.0.1:5000/placeholder.png?ratio=0 (falls back to 100%)
-http://127.0.0.1:5000/placeholder.png?ratio=50 (resizes the image to 50% of its width/height)
-http://127.0.0.1:5000/placeholder_20.png?ratio=90 (falls back to resized image via ratio)
+http://127.0.0.1:5000/file.ext (original image)
+http://127.0.0.1:5000/file.ext?ratio=0 (falls back to 100%)
+http://127.0.0.1:5000/file.ext?ratio=50 (resizes the image to 50% of its width/height)
+http://127.0.0.1:5000/file_20.ext?ratio=90 (falls back to resized image via ratio)
+http://127.0.0.1:5000/a////b////c/d/e//file.ext (normalizes to a/b/c/d/e/file.ext)
+http://127.0.0.1:5000/../file.ext (normalizes to file.ext)
 ```
 
 ### How it works
 
-By adding a `?ratio=n`, where `n` is one of the accepted integers below, query to a URL, this tells the
+By adding a `?ratio=n` query to a URL, where `n` is one of the accepted integers below, this tells the
 API to read the original image, create a new image based upon the requested ratio and return the result
 to the client.
 
-Accepted integer ratios (each integer below represent a percentage of the original width/height of an image):
-`10, 20, 35, 50, 75, 90`
+Accepted integer ratios (each integer below represents a **percentage of the original width/height** of an image):
+
+```
+10 (10%)
+20 (20%)
+35 (35%)
+50 (50%)
+75 (75%)
+90 (90%)
+```
 
 ### What's the motivation?
 
@@ -28,11 +38,14 @@ viewport is a waste of bandwidth and may result in image distortion. Utilizing a
 
 ### Flow Chart
 
-<img src="https://i.imgur.com/m7j3XOU.png" />
+![flowchart](https://i.imgur.com/m7j3XOU.png)
 
 ### Future Features
 
 - Ability to convert extensions on the fly
+
   Upstream issue: [Webp conversion is not supported](https://github.com/image-rs/image/issues/582)
+
   Possible solution: [libwebp-sys](https://docs.rs/libwebp-sys/0.4.0/libwebp_sys/)
+
   Possible solution: [webp](https://docs.rs/webp/0.2.0/webp)

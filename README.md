@@ -34,7 +34,7 @@ Accepted integer ratios (each integer below represents a **percentage of the ori
 
 Because window aspect ratios vary from device to device, serving a 3840×2160 pixel image to a 640x480 client
 viewport is a waste of bandwidth and may result in image distortion. Utilizing a HTML [picture](https://www.w3schools.com/TAGS/tag_picture.asp) element or an image
-`src-set`attribute, the browser can determine which image to load based upon the client's viewport width.
+`src-set` attribute, the browser can determine which image to load based upon the client's viewport width.
 
 ### Flow Chart
 

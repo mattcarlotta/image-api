@@ -2,3 +2,4 @@
 *.profraw
 *.png
 /static/*[0-9].*
+!/static/placeholder.png

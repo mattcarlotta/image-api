@@ -21,6 +21,9 @@ jobs:
           toolchain: nightly
           components: rustfmt, clippy
 
+      - name: Setup Cache
+      	uses: Swatinem/rust-cache@v1
+
       - name: Format Source
         id: fmt
         run: cargo fmt -- --check

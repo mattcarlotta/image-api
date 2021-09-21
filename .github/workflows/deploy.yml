@@ -22,7 +22,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Setup Cache
-      	uses: Swatinem/rust-cache@v1
+        uses: Swatinem/rust-cache@v1
 
       - name: Format Source
         id: fmt

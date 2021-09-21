@@ -29,3 +29,10 @@ viewport is a waste of bandwidth and may result in image distortion. Utilizing a
 ### Flow Chart
 
 <img src="https://i.imgur.com/m7j3XOU.png" />
+
+### Future Features
+
+- Ability to convert extensions on the fly
+  Upstream issue: [Webp conversion is not supported](https://github.com/image-rs/image/issues/582)
+  Possible solution: [libwebp-sys](https://docs.rs/libwebp-sys/0.4.0/libwebp_sys/)
+  Possible solution: [webp](https://docs.rs/webp/0.2.0/webp)

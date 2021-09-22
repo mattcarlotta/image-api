@@ -46,6 +46,6 @@ viewport is a waste of bandwidth and may result in image distortion. Utilizing a
 
   Upstream issue: [Webp conversion is not supported](https://github.com/image-rs/image/issues/582)
 
-  Possible solution: [libwebp-sys](https://docs.rs/libwebp-sys/0.4.0/libwebp_sys/)
+  Status: Currently unfixable due to the image crate not handling webp manipulations at all (can't convert to nor resize webp images)
 
-  Possible solution: [webp](https://docs.rs/webp/0.2.0/webp)
+  Workaround: Drop support for Webp images

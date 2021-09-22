@@ -102,7 +102,9 @@ impl<'a> Response<'a> {
 
         response.extend(&body);
 
-        self.stream.write_all(&response).unwrap();
+        self.stream
+            .write_all(&response)
+            .expect("Failed to write body to stream");
 
         println!(
             "[{}] - {} {} HTTP/1.1 {} {}ms",
@@ -113,6 +115,6 @@ impl<'a> Response<'a> {
             (Utc::now() - self.timestamp).num_milliseconds()
         );
 
-        self.stream.flush().unwrap()
+        self.stream.flush().expect("Failed to flush stream")
     }
 }

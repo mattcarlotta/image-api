@@ -90,7 +90,10 @@ impl<'p> RequestedImage<'p> {
     /// Saves a new image to disk with the provided resized ratio of the requested image
     pub fn save(&self) -> Result<(), String> {
         // open original image
-        let original_image = image::open(&self.path).expect("Failed to open image.");
+        let original_image = match image::open(&self.path) {
+            Ok(f) => f,
+            Err(_) => return Err("Failed to open file".to_string()),
+        };
 
         // pull out width from read image
         let (width, height) = original_image.dimensions();
@@ -100,12 +103,13 @@ impl<'p> RequestedImage<'p> {
         let new_height = (height * self.ratio as u32 / 100) as u32;
 
         // resize and save it as the requested ratio
-        original_image
-            .resize(new_width, new_height, FilterType::CatmullRom)
+        match original_image
+            .resize(new_width, new_height, FilterType::Triangle)
             .save(self.new_pathname.as_str())
-            .expect("Failed to resize image.");
-
-        Ok(())
+        {
+            Ok(_) => Ok(()),
+            Err(_) => Err("Failed to save the resized image".to_string()),
+        }
     }
 
     /// Synchronously reads the requested image and returns its contents as an encoded `Vec<u8>`

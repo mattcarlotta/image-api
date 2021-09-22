@@ -48,4 +48,4 @@ viewport is a waste of bandwidth and may result in image distortion. Utilizing a
 
   Status: Currently unfixable due to the image crate not handling webp manipulations at all (can't convert to nor resize webp images)
 
-  Workaround: Drop support for Webp images
+  Workaround: Don't implement support for on-the-fly image conversions (supported filetypes result in larger file sizes compared to png)

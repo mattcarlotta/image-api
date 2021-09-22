@@ -52,7 +52,6 @@ fn valid_request_public_image() {
 }
 
 #[test]
-#[should_panic(expected = "Failed to open image.")]
 fn invalid_request_image() {
     let path = Path::new("malformedimageext.p");
 
@@ -64,5 +63,5 @@ fn invalid_request_image() {
     // original image exists
     assert!(!img.path.is_file());
 
-    img.save().unwrap();
+    assert!(img.save().is_err());
 }

@@ -3,6 +3,7 @@ extern crate chunked_transfer;
 extern crate httparse;
 extern crate image;
 extern crate num_cpus;
+extern crate webp;
 use std::env;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};

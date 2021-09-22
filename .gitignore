@@ -1,5 +1,7 @@
 /target
 *.profraw
 *.png
+*.webp
+*.jpeg
 /static/*[0-9].*
 !/static/placeholder.png

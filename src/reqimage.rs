@@ -1,11 +1,11 @@
 use crate::http::ContentType;
 use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path, parse_dirs};
-use chunked_transfer::Encoder;
 use image::imageops::FilterType;
 use image::GenericImageView;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -29,9 +29,10 @@ impl<'p> RequestedImage<'p> {
     ///
     /// * path - PathBuf
     /// * ratio - u8
+    /// * ext - Otion<&str>
     /// * public - bool
     ///
-    pub fn new(path: &'p Path, ratio: u8, public: bool) -> Self {
+    pub fn new(path: &'p Path, ratio: u8, new_ext: Option<&'p str>, public: bool) -> Self {
         // if present strip any included "_<ratio>" from the filename
         let filename = get_string_path(path.to_path_buf())
             .chars()
@@ -45,14 +46,23 @@ impl<'p> RequestedImage<'p> {
             get_public_file(&filename)
         };
 
-        let ext = path.extension().and_then(OsStr::to_str);
+        let ext = match new_ext {
+            Some(ext) => Some(ext),
+            None => path.extension().and_then(OsStr::to_str),
+        };
 
         // conditionally assign pathname with ratio: <rootdir><filename>_<ratio>.<ext>
-        let pathname = if ratio == 0 {
+        let pathname = if ratio == 0 && new_ext.is_none() {
             get_string_path(&filepath)
         } else {
             // parse any requested directories
             let directories = parse_dirs(path);
+
+            let mut img_ratio = String::from("");
+            if ratio != 0 {
+                let fmt_r = format!("_{}", ratio);
+                img_ratio.push_str(&fmt_r);
+            }
 
             // retrieve image file stem => <filename>
             let stem = &filepath
@@ -62,11 +72,11 @@ impl<'p> RequestedImage<'p> {
 
             // format image file: <rootdir><filename>_<ratio>.<ext>
             format!(
-                "{}/{}{}_{}.{}",
+                "{}/{}{}{}.{}",
                 get_root_dir(),
                 directories,
                 stem,
-                ratio,
+                img_ratio,
                 &ext.unwrap()
             )
         };
@@ -90,20 +100,42 @@ impl<'p> RequestedImage<'p> {
     /// Saves a new image to disk with the provided resized ratio of the requested image
     pub fn save(&self) -> Result<(), String> {
         // open original image
-        let original_image = image::open(&self.path).expect("Failed to open image.");
+        let mut new_image = image::open(&self.path).expect("Failed to open image.");
 
         // pull out width from read image
-        let (width, height) = original_image.dimensions();
+        let (width, height) = new_image.dimensions();
+
+        let ratio = if self.ratio == 0 {
+            100_u32
+        } else {
+            self.ratio as u32
+        };
 
         // calculate new image width/height based on ratio
-        let new_width = (width * self.ratio as u32 / 100) as u32;
-        let new_height = (height * self.ratio as u32 / 100) as u32;
+        let new_width = (width * ratio / 100) as u32;
+        let new_height = (height * ratio / 100) as u32;
 
-        // resize and save it as the requested ratio
-        original_image
+        //if self.ext == "webp" {
+        //let img = new_image.to_rgb8();
+        //let webp_image = webp::Encoder::new(&img, webp::PixelLayout::Rgb, width, height);
+
+        //let output = webp_image.encode_lossless();
+        //let mut webp_file = BufWriter::new(File::create(&self.new_pathname).unwrap());
+
+        //webp_file
+        //.write_all(&output)
+        //.expect("Failed to save webp file");
+
+        //webp_file.flush().expect("Failed to flush webp image");
+
+        //new_image = image::open(&self.new_pathname).expect("Failed to open saved webp image");
+        //}
+
+        new_image
             .resize(new_width, new_height, FilterType::CatmullRom)
             .save(self.new_pathname.as_str())
             .expect("Failed to resize image.");
+        // resize and save it as the requested ratio
 
         Ok(())
     }
@@ -130,7 +162,7 @@ impl<'p> RequestedImage<'p> {
         // encode the image
         let mut contents = Vec::new();
         {
-            let mut encoder = Encoder::with_chunks_size(&mut contents, 8192);
+            let mut encoder = chunked_transfer::Encoder::with_chunks_size(&mut contents, 8192);
             encoder.write_all(&buf).expect("Failed to encode image");
         }
 

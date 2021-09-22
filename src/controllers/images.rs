@@ -1,7 +1,8 @@
-use crate::http::{QueryString, Request, Response, ResponseType};
+use crate::http::{ContentType, QueryString, Request, Response, ResponseType};
 use crate::lrucache::Cache;
 use crate::reqimage::RequestedImage;
 use crate::utils::{bad_req_file, file_not_found, server_error_file};
+use std::ffi::OsStr;
 use std::path::Path;
 
 pub fn image(cache: Cache, req: Request, res: Response) {
@@ -16,6 +17,12 @@ pub fn image(cache: Cache, req: Request, res: Response) {
 
     let path = Path::new(path.strip_prefix('/').unwrap());
     let ratio = query.get("ratio");
+    let ext = query.get("ext").unwrap_or("");
+    let orig_ext = path
+        .extension()
+        .and_then(OsStr::to_str)
+        .and_then(ContentType::from_extension);
+    let new_ext = ContentType::to_ext(ext);
 
     // ensure that path is a directory
     if path.extension().is_none() || path.as_os_str().is_empty() {
@@ -30,12 +37,15 @@ pub fn image(cache: Cache, req: Request, res: Response) {
         .unwrap_or(0);
 
     // ensure the provided ratio is standardized
-    if ![0, 10, 20, 35, 50, 75, 90].contains(&ratio) {
+    if ![0, 10, 20, 35, 50, 75, 90].contains(&ratio)
+        || !ext.is_empty() && new_ext.is_none()
+        || orig_ext.unwrap().as_str() != "image/png"
+    {
         return res.set_status(400).send(bad_req_file());
     }
 
     // initialize requested image
-    let img = RequestedImage::new(path, ratio, false);
+    let img = RequestedImage::new(path, ratio, new_ext, false);
 
     // ensure the requested image has a valid content type
     if img.content_type.is_none() {
@@ -64,7 +74,15 @@ pub fn image(cache: Cache, req: Request, res: Response) {
         // log the requested file and ratio
         let mut img_query = String::new();
         if ratio > 0 {
-            img_query = format!("?ratio={}", ratio)
+            let r = format!("?ratio={}", ratio);
+
+            img_query.push_str(&r);
+        }
+
+        if new_ext.is_some() {
+            let e = format!("&ext={}", new_ext.unwrap());
+
+            img_query.push_str(&e);
         }
 
         println!(

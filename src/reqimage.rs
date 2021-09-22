@@ -5,7 +5,6 @@ use image::GenericImageView;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
-use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
@@ -100,7 +99,10 @@ impl<'p> RequestedImage<'p> {
     /// Saves a new image to disk with the provided resized ratio of the requested image
     pub fn save(&self) -> Result<(), String> {
         // open original image
-        let mut new_image = image::open(&self.path).expect("Failed to open image.");
+        let new_image = match image::open(&self.path) {
+            Ok(f) => f,
+            Err(_) => return Err("Failed to open image".to_string()),
+        };
 
         // pull out width from read image
         let (width, height) = new_image.dimensions();
@@ -115,29 +117,14 @@ impl<'p> RequestedImage<'p> {
         let new_width = (width * ratio / 100) as u32;
         let new_height = (height * ratio / 100) as u32;
 
-        //if self.ext == "webp" {
-        //let img = new_image.to_rgb8();
-        //let webp_image = webp::Encoder::new(&img, webp::PixelLayout::Rgb, width, height);
-
-        //let output = webp_image.encode_lossless();
-        //let mut webp_file = BufWriter::new(File::create(&self.new_pathname).unwrap());
-
-        //webp_file
-        //.write_all(&output)
-        //.expect("Failed to save webp file");
-
-        //webp_file.flush().expect("Failed to flush webp image");
-
-        //new_image = image::open(&self.new_pathname).expect("Failed to open saved webp image");
-        //}
-
-        new_image
-            .resize(new_width, new_height, FilterType::CatmullRom)
-            .save(self.new_pathname.as_str())
-            .expect("Failed to resize image.");
         // resize and save it as the requested ratio
-
-        Ok(())
+        match new_image
+            .resize(new_width, new_height, FilterType::Nearest)
+            .save(self.new_pathname.as_str())
+        {
+            Ok(_) => Ok(()),
+            Err(_) => Err("Failed to resize and save new image".to_string()),
+        }
     }
 
     /// Synchronously reads the requested image and returns its contents as an encoded `Vec<u8>`

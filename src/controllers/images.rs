@@ -39,7 +39,7 @@ pub fn image(cache: Cache, req: Request, res: Response) {
     // ensure the provided ratio is standardized
     if ![0, 10, 20, 35, 50, 75, 90].contains(&ratio)
         || !ext.is_empty() && new_ext.is_none()
-        || orig_ext.unwrap().as_str() != "image/png"
+        || orig_ext.unwrap() != ContentType::Png
     {
         return res.set_status(400).send(bad_req_file());
     }

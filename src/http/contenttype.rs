@@ -36,7 +36,7 @@ impl ContentType {
     /// Converts an image extension to a condtional string slice
     pub fn to_ext(s: &str) -> Option<&str> {
         match s {
-            "jpg" | "jpeg" => Some("jpeg"),
+            "webp" => Some("webp"),
             _ => None,
         }
     }

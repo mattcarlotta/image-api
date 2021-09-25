@@ -5,7 +5,9 @@ use image::GenericImageView;
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
+use webp as ImageWebp;
 
 #[derive(Debug)]
 pub struct RequestedImage<'p> {
@@ -97,15 +99,15 @@ impl<'p> RequestedImage<'p> {
     }
 
     /// Saves a new image to disk with the provided resized ratio of the requested image
-    pub fn save(&self) -> Result<(), String> {
+    pub fn save(&self) -> Result<(), &str> {
         // open original image
-        let new_image = match image::open(&self.path) {
+        let orig_image = match image::open(&self.path) {
             Ok(f) => f,
-            Err(_) => return Err("Failed to open image".to_string()),
+            Err(_) => return Err("Failed to open image"),
         };
 
         // pull out width from read image
-        let (width, height) = new_image.dimensions();
+        let (width, height) = orig_image.dimensions();
 
         let ratio = if self.ratio == 0 {
             100_u32
@@ -113,17 +115,73 @@ impl<'p> RequestedImage<'p> {
             self.ratio as u32
         };
 
-        // calculate new image width/height based on ratio
         let new_width = (width * ratio / 100) as u32;
         let new_height = (height * ratio / 100) as u32;
+        let orig_ext = self.path.extension().and_then(OsStr::to_str).unwrap();
 
-        // resize and save it as the requested ratio
-        match new_image
-            .resize(new_width, new_height, FilterType::Nearest)
-            .save(self.new_pathname.as_str())
-        {
-            Ok(_) => Ok(()),
-            Err(_) => Err("Failed to resize and save new image".to_string()),
+        // This works around the issue where webp file types can't
+        // be resized nor saved, so the original image is downsampled and converted
+        // to the new file type
+        if orig_ext != self.ext {
+            let filestem = self
+                .new_pathname
+                .split('.')
+                .filter(|l| l.contains('/'))
+                .collect::<String>();
+
+            // convert new image to orignal extension
+            let file_path = format!("{}.{}", filestem, orig_ext);
+            let downsampled_img = Path::new(&file_path);
+
+            if !downsampled_img.is_file() {
+                // downsample original image and save it
+                if orig_image
+                    .resize(new_width, new_height, FilterType::Triangle)
+                    .save(&file_path)
+                    .is_err()
+                {
+                    return Err("Failed to downsample original png");
+                };
+            }
+
+            // open downsampled image
+            let new_image = match image::open(file_path) {
+                Ok(f) => f,
+                Err(_) => return Err("Failed to open downsampled image"),
+            };
+
+            // create webp file
+            let mut output = BufWriter::new(File::create(self.new_pathname.as_str()).unwrap());
+
+            // decode downsampled image
+            let img = match ImageWebp::Encoder::from_image(&new_image) {
+                Ok(f) => f,
+                Err(_) => return Err("Failed to encode image from downsampled image"),
+            };
+
+            // set encoded image quality
+            let encoded_img = img.encode(100.0);
+
+            // write encoded image to file
+            if output.write_all(&encoded_img).is_err() {
+                return Err("Failed to save encoded image");
+            };
+
+            // flush buf writer
+            if output.flush().is_ok() {
+                Ok(())
+            } else {
+                Err("Failed to flush encoded image")
+            }
+        } else {
+            // resize original image and save it as the requested ratio
+            match orig_image
+                .resize(new_width, new_height, FilterType::Triangle)
+                .save(self.new_pathname.as_str())
+            {
+                Ok(_) => Ok(()),
+                Err(_) => Err("Failed to save the resized image"),
+            }
         }
     }
 

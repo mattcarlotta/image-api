@@ -2,12 +2,12 @@ use crate::http::ContentType;
 use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path, parse_dirs};
 use image::imageops::FilterType;
 use image::GenericImageView;
+use libwebp_sys::{WebPEncodeRGB, WebPFree};
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::{BufWriter, Write};
 use std::path::{Path, PathBuf};
-use webp as ImageWebp;
 
 #[derive(Debug)]
 pub struct RequestedImage<'p> {
@@ -145,33 +145,45 @@ impl<'p> RequestedImage<'p> {
             }
 
             // open downsampled image
-            let new_image = match image::open(file_path) {
+            let downsampled_image = match image::open(file_path) {
                 Ok(f) => f,
                 Err(_) => return Err("Failed to open downsampled image"),
             };
 
-            // create webp file
-            let mut output = BufWriter::new(File::create(self.new_pathname.as_str()).unwrap());
+            let raw_img = downsampled_image.into_rgb8();
 
-            // decode downsampled image
-            let img = match ImageWebp::Encoder::from_image(&new_image) {
-                Ok(f) => f,
-                Err(_) => return Err("Failed to encode image from downsampled image"),
-            };
+            unsafe {
+                let mut buf_ptr = std::ptr::null_mut();
+                let stride = new_width as i32 * 3;
+                // create webp file
+                let mut output = BufWriter::new(File::create(self.new_pathname.as_str()).unwrap());
 
-            // set encoded image quality
-            let encoded_img = img.encode(100.0);
+                // encode downsampled image
+                let len = WebPEncodeRGB(
+                    raw_img.as_ptr(),
+                    new_width as i32,
+                    new_height as i32,
+                    stride,
+                    100.0,
+                    &mut buf_ptr,
+                );
 
-            // write encoded image to file
-            if output.write_all(&encoded_img).is_err() {
-                return Err("Failed to save encoded image");
-            };
+                // parse memory to raw bytes
+                let img_slice = std::slice::from_raw_parts(buf_ptr, len);
 
-            // flush buf writer
-            if output.flush().is_ok() {
+                // write encoded image to file
+                if output.write_all(img_slice).is_err() {
+                    return Err("Failed to save encoded image");
+                };
+
+                // flush buf writer
+                if output.flush().is_err() {
+                    return Err("Failed to flush encoded image");
+                };
+
+                WebPFree(buf_ptr as _);
+
                 Ok(())
-            } else {
-                Err("Failed to flush encoded image")
             }
         } else {
             // resize original image and save it as the requested ratio

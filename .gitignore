@@ -3,5 +3,6 @@
 *.png
 *.webp
 *.jpeg
+heaptrack.*.gz
 /static/*[0-9].*
 !/static/placeholder.png

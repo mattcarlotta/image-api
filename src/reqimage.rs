@@ -2,7 +2,7 @@ use crate::http::ContentType;
 use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path, parse_dirs};
 use image::imageops::FilterType;
 use image::GenericImageView;
-use libwebp_sys::{WebPEncodeRGB, WebPFree};
+use libwebp_sys::{WebPEncodeLosslessRGB, WebPFree};
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
@@ -131,9 +131,9 @@ impl<'p> RequestedImage<'p> {
 
             // convert new image to orignal extension
             let file_path = format!("{}.{}", filestem, orig_ext);
-            let downsampled_img = Path::new(&file_path);
+            let downsampled_path = Path::new(&file_path);
 
-            if !downsampled_img.is_file() {
+            if !downsampled_path.is_file() {
                 // downsample original image and save it
                 if orig_image
                     .resize(new_width, new_height, FilterType::Triangle)
@@ -153,22 +153,17 @@ impl<'p> RequestedImage<'p> {
             let raw_img = downsampled_image.into_rgb8();
 
             unsafe {
+                let w = new_width as i32;
+                let h = new_height as i32;
                 let mut buf_ptr = std::ptr::null_mut();
-                let stride = new_width as i32 * 3;
+                let stride = w * 3;
                 // create webp file
                 let mut output = BufWriter::new(File::create(self.new_pathname.as_str()).unwrap());
 
-                // encode downsampled image
-                let len = WebPEncodeRGB(
-                    raw_img.as_ptr(),
-                    new_width as i32,
-                    new_height as i32,
-                    stride,
-                    100.0,
-                    &mut buf_ptr,
-                );
+                // losslessly encode downsampled image
+                let len = WebPEncodeLosslessRGB(raw_img.as_ptr(), w, h, stride, &mut buf_ptr);
 
-                // parse memory to raw bytes
+                // create encoded image slice from memory
                 let img_slice = std::slice::from_raw_parts(buf_ptr, len);
 
                 // write encoded image to file

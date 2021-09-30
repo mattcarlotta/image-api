@@ -1,5 +1,5 @@
 #![allow(dead_code)]
-use super::{ContentType, Method, Request, StatusCode};
+use super::{Client, ContentType, Method, Request, StatusCode};
 use chrono::prelude::{DateTime, Utc};
 use std::io::prelude::Write;
 use std::net::TcpStream;
@@ -26,6 +26,7 @@ impl ResponseType {
 
 #[derive(Debug)]
 pub struct Response<'a> {
+    client: Client,
     status_code: StatusCode,
     method: Method,
     content_type: ContentType,
@@ -38,11 +39,13 @@ impl<'a> Response<'a> {
     /// Stores the result of a parsed Request
     ///
     /// Arguments:
+    /// * host: Address
     /// * req: Request
     /// * stream: &mut TcpStream
     ///
-    pub fn new(req: &Request, stream: &'a mut TcpStream) -> Self {
+    pub fn new(client: Client, req: &Request, stream: &'a mut TcpStream) -> Self {
         Self {
+            client,
             status_code: StatusCode::Ok,
             method: req.method,
             path: req.path.to_owned(),
@@ -85,6 +88,7 @@ impl<'a> Response<'a> {
         let header = format!("HTTP/1.1 {} {}", self.status_code, self.status_code.parse());
         let date = format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"));
         let ct = format!("Content-Type: {}", self.content_type);
+        let allowed_host = format!("Access-Control-Allow-Origin: {}", self.client);
 
         let mut response = [
             &header,
@@ -92,7 +96,11 @@ impl<'a> Response<'a> {
             &date,
             &ct,
             data_type.as_str(),
-            "Strict-Transport-Security: max-age=63072000",
+            "Connection: keep-alive",
+            "Content-Disposition: inline",
+            &allowed_host,
+            "Access-Control-Allow-Methods: GET, OPTIONS",
+            "Strict-Transport-Security: max-age=15768000; includeSubDomains",
             "X-Content-Type-Options: nosniff",
             "X-Frame-Options: DENY",
             "\r\n",

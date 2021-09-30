@@ -100,7 +100,11 @@
         pictures.forEach(function (p) {
           var imgContainer = document.createElement("div");
           imgContainer.classList.add("img-container");
-          var imgTitle = `/${p}/${p}.png?ratio=${ratios[randomIndex()]}`;
+          var ext = "";
+          if (Math.random() > 0.5) {
+            ext = "&ext=webp";
+          }
+          var imgTitle = `/${p}/${p}.png?ratio=${ratios[randomIndex()]}${ext}`;
 
           var img = document.createElement("img");
           img.classList.add("img");

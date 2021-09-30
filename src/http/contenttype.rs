@@ -6,7 +6,6 @@ pub enum ContentType {
     Gif,
     Bmp,
     Jpeg,
-    Jpg,
     Webp,
     Avif,
     Svg,
@@ -23,7 +22,6 @@ impl ContentType {
             ContentType::Png => "image/png",
             ContentType::Gif => "image/gif",
             ContentType::Bmp => "image/bmp",
-            ContentType::Jpg => "image/jpg",
             ContentType::Jpeg => "image/jpeg",
             ContentType::Webp => "image/webp",
             ContentType::Avif => "image/avif",
@@ -32,6 +30,14 @@ impl ContentType {
             ContentType::Text => "text/plain; charset=utf-8",
             ContentType::Html => "text/html; charset=utf-8",
             ContentType::Invalid => "",
+        }
+    }
+
+    /// Converts an image extension to a condtional string slice
+    pub fn to_ext(s: &str) -> Option<&str> {
+        match s {
+            "webp" => Some("webp"),
+            _ => None,
         }
     }
 
@@ -45,8 +51,7 @@ impl ContentType {
             "png" => Some(ContentType::Png),
             "gif" => Some(ContentType::Gif),
             "bmp" => Some(ContentType::Bmp),
-            "jpg" => Some(ContentType::Jpg),
-            "jpeg" => Some(ContentType::Jpeg),
+            "jpg" | "jpeg" => Some(ContentType::Jpeg),
             "webp" => Some(ContentType::Webp),
             "avif" => Some(ContentType::Avif),
             "svg" => Some(ContentType::Svg),

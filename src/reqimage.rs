@@ -1,5 +1,6 @@
 use crate::http::ContentType;
 use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_path, parse_dirs};
+use chunked_transfer::Encoder as ImageEncoder;
 use image::imageops::FilterType;
 use image::GenericImageView;
 use libwebp_sys::{WebPEncodeLosslessRGB, WebPFree};
@@ -214,7 +215,7 @@ impl<'p> RequestedImage<'p> {
         // encode the image
         let mut contents = Vec::new();
         {
-            let mut encoder = chunked_transfer::Encoder::with_chunks_size(&mut contents, 8192);
+            let mut encoder = ImageEncoder::with_chunks_size(&mut contents, 8192);
             encoder.write_all(&buf).expect("Failed to encode image");
         }
 

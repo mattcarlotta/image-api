@@ -35,7 +35,7 @@ impl<'p> RequestedImage<'p> {
     ///
     pub fn new(path: &'p Path, ratio: u8, new_ext: Option<&'p str>, public: bool) -> Self {
         // if present strip any included "_<ratio>" from the filename
-        let filename = get_string_path(path.to_path_buf())
+        let filename = get_string_path(path)
             .chars()
             .filter(|c| *c != '_' && !c.is_digit(10))
             .collect::<String>();
@@ -87,7 +87,7 @@ impl<'p> RequestedImage<'p> {
             path: filepath,
             filename,
             new_pathname: pathname.to_string(),
-            new_pathname_buf: Path::new(&pathname).to_path_buf(),
+            new_pathname_buf: PathBuf::from(&pathname),
             ratio,
             ext: ext.unwrap(),
         }

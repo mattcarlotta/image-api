@@ -4,6 +4,7 @@
 *.webp
 *.jpeg
 heaptrack.*.gz
+start.json
 /static/*[0-9].*
 !/static/placeholder.png
 !/static/rustybucket.png

@@ -3,7 +3,7 @@ use crate::utils::{get_public_file, get_root_dir, get_static_file, get_string_pa
 use chunked_transfer::Encoder as ImageEncoder;
 use image::imageops::FilterType;
 use image::GenericImageView;
-use libwebp_sys::{WebPEncodeLosslessRGB, WebPFree};
+use libwebp_sys::{WebPEncodeLosslessRGBA, WebPFree};
 use std::ffi::OsStr;
 use std::fs::File;
 use std::io::prelude::*;
@@ -151,18 +151,18 @@ impl<'p> RequestedImage<'p> {
                 Err(_) => return Err("Failed to open downsampled image"),
             };
 
-            let raw_img = downsampled_image.into_rgb8();
+            let raw_img = downsampled_image.into_rgba8();
 
             unsafe {
                 let w = new_width as i32;
                 let h = new_height as i32;
                 let mut buf_ptr = std::ptr::null_mut();
-                let stride = w * 3;
+                let stride = w * 4;
                 // create webp file
                 let mut output = BufWriter::new(File::create(self.new_pathname.as_str()).unwrap());
 
                 // losslessly encode downsampled image
-                let len = WebPEncodeLosslessRGB(raw_img.as_ptr(), w, h, stride, &mut buf_ptr);
+                let len = WebPEncodeLosslessRGBA(raw_img.as_ptr(), w, h, stride, &mut buf_ptr);
 
                 // create encoded image slice from memory
                 let img_slice = std::slice::from_raw_parts(buf_ptr, len);

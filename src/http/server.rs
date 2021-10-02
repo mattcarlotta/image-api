@@ -5,10 +5,10 @@ use std::env;
 use std::net::TcpListener;
 use std::sync::{Arc, Mutex};
 
-pub type AllowedHosts = Arc<Vec<String>>;
+pub type AllowedHosts = Arc<[String; 2]>;
 
 pub struct Server {
-    allowedhosts: Vec<String>,
+    allowedhosts: [String; 2],
     client: String,
     hostname: String,
 }
@@ -22,9 +22,7 @@ impl Server {
     ///
     pub fn new(hostname: String) -> Self {
         let client = env::var("client").unwrap_or_else(|_| "localhost:3000".to_string());
-        let mut allowedhosts = Vec::with_capacity(2);
-        allowedhosts.push(hostname.to_string());
-        allowedhosts.push(client.to_string());
+        let allowedhosts: [String; 2] = [hostname.to_string(), client.to_string()];
 
         Server {
             allowedhosts,

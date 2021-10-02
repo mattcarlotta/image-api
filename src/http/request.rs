@@ -33,12 +33,13 @@ impl<'a> Request {
             let parsed_method = req.method.unwrap_or("");
 
             // parse headers and compare if requester host matches an allowed hostname
+            // if a match isn't found then it falls back to the allowed client (to prevent CORS)
             for header in req.headers {
                 if header.name == "Host" {
+                    let requester = String::from_utf8_lossy(header.value).to_string();
                     for host in allowedhosts.iter() {
-                        let requester = String::from_utf8_lossy(header.value);
-                        if host.as_str() == &requester {
-                            allowed_host = requester.to_string();
+                        if *host == requester {
+                            allowed_host = requester.to_owned();
                         }
                     }
                 }

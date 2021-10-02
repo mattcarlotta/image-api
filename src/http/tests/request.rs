@@ -6,9 +6,7 @@ use std::sync::Arc;
 fn parse_good_request() {
     let buf = b"GET /hello.html HTTP/1.1\r\nHost:localhost:5000\r\n\r\n";
     let date = Utc::now();
-    let mut allowedhosts = Vec::with_capacity(2);
-    allowedhosts.push("localhost:5000".to_string());
-    allowedhosts.push("localhost:3000".to_string());
+    let allowedhosts: [String; 2] = ["localhost:5000".to_string(), "localost:3000".to_string()];
     let hosts = Arc::from(allowedhosts.clone());
 
     let req = Request::new(buf, hosts, date);
@@ -22,9 +20,7 @@ fn parse_good_request() {
 fn parse_bad_request() {
     let buf = b"POST / HTTP/1.1\r\nHost: localhost:5000\r\n";
     let date = Utc::now();
-    let mut allowedhosts = Vec::with_capacity(2);
-    allowedhosts.push("localhost:5000".to_string());
-    allowedhosts.push("localhost:3000".to_string());
+    let allowedhosts: [String; 2] = ["localhost:5000".to_string(), "localost:3000".to_string()];
     let hosts = Arc::from(allowedhosts.clone());
 
     let req = Request::new(buf, hosts, date);

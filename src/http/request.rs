@@ -1,6 +1,7 @@
 use super::{AllowedHosts, Method};
 use crate::utils::normalize_path;
 use chrono::{DateTime, Utc};
+use std::borrow::Borrow;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -25,27 +26,24 @@ impl<'a> Request {
 
         let mut path = String::new();
         let mut method = Method::Invalidmethod;
-        let mut allowed_host = allowedhosts[1].to_string();
+        let mut allowed_host = allowedhosts[1].to_owned();
 
         // attempt to parse the path and method from the incoming request header
         if let Ok(r) = req.parse(buffer) {
             let parsed_path = req.path.unwrap_or("");
             let parsed_method = req.method.unwrap_or("");
+            method = Method::from_str(parsed_method).unwrap();
 
             // parse headers and compare if requester host matches an allowed hostname
             // if a match isn't found then it falls back to the allowed client (to prevent CORS)
-            for header in req.headers {
-                if header.name == "Host" {
-                    let requester = String::from_utf8_lossy(header.value).to_string();
-                    for host in allowedhosts.iter() {
-                        if *host == requester {
-                            allowed_host = requester.to_owned();
-                        }
-                    }
+            if let Some(host) = req.headers.iter().find(|h| h.name == "Host") {
+                if let Some(reqhost) = allowedhosts
+                    .iter()
+                    .find(|&ah| *ah == String::from_utf8_lossy(host.value).borrow())
+                {
+                    allowed_host = reqhost.to_owned();
                 }
             }
-
-            method = Method::from_str(parsed_method).unwrap();
 
             // if the request/path are invalid sets method to invalid
             // which will be caught in the main controller

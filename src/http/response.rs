@@ -39,7 +39,6 @@ impl<'a> Response<'a> {
     /// Stores the result of a parsed Request
     ///
     /// Arguments:
-    /// * allowedhosts: AllowedHosts
     /// * req: Request
     /// * stream: &mut TcpStream
     ///
@@ -92,10 +91,10 @@ impl<'a> Response<'a> {
 
         let mut response = [
             &header,
-            "Server: rustybuckets/0.0.1",
+            "Server: rustybuckets/1.0.0",
             &date,
             &ct,
-            data_type.as_str(),
+            &data_type,
             "Connection: keep-alive",
             "Content-Disposition: inline",
             &allowed_host,

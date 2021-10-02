@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct QueryString<'buf> {
-    pub table: HashMap<&'buf str, &'buf str>,
+pub struct QueryString<'a> {
+    pub table: HashMap<&'a str, &'a str>,
 }
 
-impl<'buf> QueryString<'buf> {
+impl<'a> QueryString<'a> {
     /// Initializes a query string hash table
     pub fn new() -> Self {
         QueryString {
@@ -20,7 +20,7 @@ impl<'buf> QueryString<'buf> {
     ///
     /// This will only retain the last instance of a key
     /// where any duplicated keys are overriden
-    pub fn parse(&mut self, s: &'buf str) {
+    pub fn parse(&mut self, s: &'a str) {
         for sub_str in s.split('&') {
             if self.table.len() == 5 {
                 return;
@@ -43,7 +43,7 @@ impl<'buf> QueryString<'buf> {
     /// Arguments:
     /// * key: &str
     ///
-    pub fn get(&self, key: &str) -> Option<&'buf str> {
+    pub fn get(&self, key: &str) -> Option<&'a str> {
         self.table.get(key).copied()
     }
 }

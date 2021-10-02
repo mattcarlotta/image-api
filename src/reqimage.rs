@@ -60,7 +60,7 @@ impl<'p> RequestedImage<'p> {
             // parse any requested directories
             let directories = parse_dirs(path);
 
-            let mut img_ratio = String::from("");
+            let mut img_ratio = String::new();
             if ratio != 0 {
                 let fmt_r = format!("_{}", ratio);
                 img_ratio.push_str(&fmt_r);
@@ -158,8 +158,11 @@ impl<'p> RequestedImage<'p> {
                 let h = new_height as i32;
                 let mut buf_ptr = std::ptr::null_mut();
                 let stride = w * 4;
-                // create webp file
-                let mut output = BufWriter::new(File::create(self.new_pathname.as_str()).unwrap());
+                let created_img = match File::create(self.new_pathname.as_str()) {
+                    Ok(f) => f,
+                    Err(_) => return Err("Failed to create new image file"),
+                };
+                let mut output = BufWriter::new(created_img);
 
                 // losslessly encode downsampled image
                 let len = WebPEncodeLosslessRGBA(raw_img.as_ptr(), w, h, stride, &mut buf_ptr);
@@ -167,7 +170,7 @@ impl<'p> RequestedImage<'p> {
                 // create encoded image slice from memory
                 let img_slice = std::slice::from_raw_parts(buf_ptr, len);
 
-                // write encoded image to file
+                // write encoded image slice to file
                 if output.write_all(img_slice).is_err() {
                     return Err("Failed to save encoded image");
                 };

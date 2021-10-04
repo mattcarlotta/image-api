@@ -23,7 +23,7 @@ Because window aspect ratios vary from device to device, serving a 3840×2160 pi
 
 By requesting an image with some additional URL queries, the API interprets the provided queries and downsamples/converts the requested image on-the-fly.
 
-All unique image requests are stored into a [LRU cache](<https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)>) on initial request; this means any subsequent requests will be served an encoded image from the cache instead of reading/encoding the file from disk. This assumes that the original file sizes are relatively small (8mb or less); otherwise, it's recommended to either reduce the amount allowed to be stored in the LRU cache (default: [50](https://github.com/mattcarlotta/image-api/blob/main/src/main.rs#L36)) or to just remove the cache entirely.
+All unique image requests are stored into a [LRU cache](<https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)>) on initial request; this means any subsequent requests will be served an encoded image from the cache instead of reading/encoding the file from disk. This assumes that the original file sizes are relatively small (8mb or less); otherwise, it's recommended to either reduce the amount allowed to be stored in the LRU cache (default: [100](https://github.com/mattcarlotta/image-api/blob/main/src/main.rs#L36)) or to just remove the cache entirely.
 
 ## URL Queries
 

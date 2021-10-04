@@ -35,7 +35,7 @@ impl Server {
     pub fn listen(&self) {
         let listener = TcpListener::bind(&self.hostname).unwrap();
         let scheduler = Scheduler::new();
-        let init_cache = Arc::new(Mutex::new(LRUCache::new(50)));
+        let init_cache = Arc::new(Mutex::new(LRUCache::new(100)));
         let host = Arc::from(self.allowedhosts.clone());
 
         println!(

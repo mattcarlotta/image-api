@@ -18,4 +18,4 @@ jobs:
         run: |
           echo '${{secrets.DEPLOYKEY}}' > deploy_key
           chmod 600 ./deploy_key
-          ssh -i ./deploy_key -v ${{env.REMOTE}} -p 22 'cd ${{secrets.DESTINATION}};git pull origin main;RUSTFLAGS="-C target-cpu=native" cargo build --release;pm2 restart 1'
+          ssh -i ./deploy_key -o StrictHostKeyChecking=no -v ${{env.REMOTE}} 'cd ${{secrets.DESTINATION}};git pull origin main;RUSTFLAGS="-C target-cpu=native" cargo build --release;pm2 restart 1'

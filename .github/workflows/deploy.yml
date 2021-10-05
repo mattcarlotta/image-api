@@ -14,8 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Build and Restart Application
-        run: |
+      - name: Setup SSH Key
+      - run: |
           echo '${{secrets.DEPLOYKEY}}' > deploy_key
           chmod 600 ./deploy_key
-          ssh -i ./deploy_key -v ${{env.REMOTE}} -p 22 'cd ${{secrets.DESTINATION}};git pull origin main;RUSTFLAGS="-C target-cpu=native" cargo build --release;pm2 restart 1'
+
+      - name: Build and Restart Application
+        run: sh -i ./deploy_key -o 'StrictHostKeyChecking no' -v ${{env.REMOTE}} 'cd ${{secrets.DESTINATION}};git pull origin main;RUSTFLAGS="-C target-cpu=native" cargo build --release;pm2 restart 1'

@@ -137,7 +137,7 @@ impl<'p> RequestedImage<'p> {
             if !downsampled_path.is_file() {
                 // downsample original image and save it
                 if orig_image
-                    .resize_exact(new_width, new_height, FilterType::CatmullRom)
+                    .resize(new_width, new_height, FilterType::CatmullRom)
                     .save(&file_path)
                     .is_err()
                 {
@@ -151,11 +151,13 @@ impl<'p> RequestedImage<'p> {
                 Err(_) => return Err("Failed to open downsampled image"),
             };
 
+            let (d_width, d_height) = downsampled_image.dimensions();
+
             let raw_img = downsampled_image.into_rgba8();
 
             unsafe {
-                let w = new_width as i32;
-                let h = new_height as i32;
+                let w = d_width as i32;
+                let h = d_height as i32;
                 let mut buf_ptr = std::ptr::null_mut();
                 let stride = w * 4;
 

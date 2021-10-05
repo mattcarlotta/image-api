@@ -25,5 +25,5 @@ jobs:
             cd ${{ secrets.DESTINATION }}
             git restore .
             git pull origin main
-            RUSTFLAGS="-C target-cpu=native" /usr/bin/cargo build --release
+            /usr/bin/cargo build --release
             pm2 restart 1

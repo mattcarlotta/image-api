@@ -137,7 +137,7 @@ impl<'p> RequestedImage<'p> {
             if !downsampled_path.is_file() {
                 // downsample original image and save it
                 if orig_image
-                    .resize(new_width, new_height, FilterType::CatmullRom)
+                    .resize_exact(new_width, new_height, FilterType::CatmullRom)
                     .save(&file_path)
                     .is_err()
                 {
@@ -151,16 +151,11 @@ impl<'p> RequestedImage<'p> {
                 Err(_) => return Err("Failed to open downsampled image"),
             };
 
-            // when the image crate downsamples the image it can offset the width/height by 1 or 2 pixels
-            // therefore, it's imperative to use the downsampled dimensions (otherwise webp output
-            // becomes distorted)
-            let (width, height) = downsampled_image.dimensions();
-
             let raw_img = downsampled_image.into_rgba8();
 
             unsafe {
-                let w = width as i32;
-                let h = height as i32;
+                let w = new_width as i32;
+                let h = new_height as i32;
                 let mut buf_ptr = std::ptr::null_mut();
                 let stride = w * 4;
 

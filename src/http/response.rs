@@ -15,7 +15,10 @@ impl ResponseType {
     /// Parses a `ResponseType` to a tuple of: `Vec<u8>` and `String`
     pub fn parse(self) -> (Vec<u8>, String) {
         match self {
-            ResponseType::Chunked(body) => (body, "Transfer-Encoding: chunked".to_string()),
+            ResponseType::Chunked(body) => (
+                body,
+                "Transfer-Encoding: chunked\r\nCache-Control: max-age=31536000".to_string(),
+            ),
             ResponseType::Html(body) | ResponseType::Text(body) => (
                 body.to_owned().into_bytes(),
                 format!("Content-Length: {}", body.len()),

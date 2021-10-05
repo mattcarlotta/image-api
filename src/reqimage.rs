@@ -151,15 +151,19 @@ impl<'p> RequestedImage<'p> {
                 Err(_) => return Err("Failed to open downsampled image"),
             };
 
-            let (ds_width, ds_height) = downsampled_image.dimensions();
+            // when the image crate downsamples the image it can offset the width/height by 1 or 2 pixels
+            // therefore, it's imperative to use the downsampled dimensions (otherwise webp output
+            // becomes distorted)
+            let (width, height) = downsampled_image.dimensions();
 
             let raw_img = downsampled_image.into_rgba8();
 
             unsafe {
-                let w = ds_width as i32;
-                let h = ds_height as i32;
+                let w = width as i32;
+                let h = height as i32;
                 let mut buf_ptr = std::ptr::null_mut();
                 let stride = w * 4;
+
                 let created_img = match File::create(self.new_pathname.as_str()) {
                     Ok(f) => f,
                     Err(_) => return Err("Failed to create new image file"),

@@ -14,29 +14,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Environment
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-
-      - name: Setup Cache
-        uses: Swatinem/rust-cache@v1
-
-      - name: Create Local Build
-        id: build
-        run: cargo build -v --release
-
-      - name: Deploy Build
-        if: steps.build.exit_code == 0
+      - name: Build and Restart Application
         run: |
           echo '${{secrets.DEPLOYKEY}}' > deploy_key
           chmod 600 ./deploy_key
-          rsync -chav --delete --exclude start.json --exclude /static/ \
-            -e 'ssh -i ./deploy_key -o StrictHostKeyChecking=no' \
-            --exclude * \
-            --include /public/ \
-            --include /target/ \
-            ./ ${{env.REMOTE}}:${{secrets.DESTINATION}}
-
-      - name: Restart Application
-        run: ssh -i ./deploy_key -o 'StrictHostKeyChecking no' -v ${{env.REMOTE}} 'cd ${{secrets.DESTINATION}};pm2 restart 1'
+          ssh -i ./deploy_key -o 'StrictHostKeyChecking no' -v ${{env.REMOTE}} 'cd ${{secrets.DESTINATION}};git pull origin main;RUSTFLAGS="-C target-cpu=native" cargo build --release;pm2 restart 1'

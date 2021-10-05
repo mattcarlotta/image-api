@@ -91,10 +91,6 @@ impl<'a> Response<'a> {
         let date = format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"));
         let ct = format!("Content-Type: {}", self.content_type);
         let allowed_host = format!("Access-Control-Allow-Origin: {}", self.allowed_host);
-        let csp = format!(
-            "Content-Security-Policy: default-src 'self' {0} *.{0}",
-            self.allowed_host
-        );
 
         let mut response = [
             &header,
@@ -105,7 +101,6 @@ impl<'a> Response<'a> {
             "Connection: keep-alive",
             "Content-Disposition: inline",
             &allowed_host,
-            &csp,
             "Access-Control-Allow-Methods: GET, OPTIONS",
             "Strict-Transport-Security: max-age=15768000; includeSubDomains",
             "X-Content-Type-Options: nosniff",

@@ -28,7 +28,7 @@ fn e2e_integrations() {
         "text/html; charset=utf-8"
     );
 
-    let img_res = get("http://localhost:5000/placeholder.png").unwrap();
+    let img_res = get("http://localhost:5000/rustybucket.png").unwrap();
     assert!(img_res.status().is_success());
     assert_eq!(img_res.headers().get(CONTENT_TYPE).unwrap(), "image/png");
     assert_eq!(img_res.headers().get(TRANSFER_ENCODING).unwrap(), "chunked");

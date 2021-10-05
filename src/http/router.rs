@@ -1,4 +1,4 @@
-use super::{Client, Method, Request, Response};
+use super::{AllowedHosts, Method, Request, Response};
 use crate::controllers;
 use crate::lrucache::Cache;
 use chrono::prelude::Utc;
@@ -13,15 +13,15 @@ use std::net::TcpStream;
 /// * cache: Cache
 ///
 #[allow(clippy::unused_io_amount)]
-pub fn router(mut stream: TcpStream, cache: Cache, client: Client) {
+pub fn router(mut stream: TcpStream, cache: Cache, allowedhosts: AllowedHosts) {
     let timestamp = Utc::now();
     let mut buffer = [0; 1024];
 
     stream.read(&mut buffer).unwrap();
 
-    let req = Request::new(&buffer, timestamp);
+    let req = Request::new(&buffer, allowedhosts, timestamp);
 
-    let res = Response::new(client, &req, &mut stream);
+    let res = Response::new(&req, &mut stream);
 
     if !req.method.is_valid() {
         return controllers::badrequest(req, res);

@@ -23,7 +23,7 @@ mod utils;
 mod tests;
 
 fn main() {
-    let address = env::var("host").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let address = env::var("host").unwrap_or_else(|_| "localhost".to_string());
     let port = env::var("port").unwrap_or_else(|_| "5000".to_string());
     let hostname = format!("{}:{}", address, port);
 

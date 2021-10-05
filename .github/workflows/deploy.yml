@@ -1,49 +1,21 @@
-name: Deploy
+name: Deployment
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
   deploy:
     if: "!contains(github.event.commits[0].message, '[skip-ci]')"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Environment
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          components: rustfmt, clippy
-
-      - name: Setup Cache
-        uses: Swatinem/rust-cache@v1
-
-      - name: Format Source
-        id: fmt
-        run: cargo fmt -- --check
-
-      - name: Clip Source
-        if: steps.tests.fmt == 0
-        id: clippy
-        run: cargo clippy
-
-      - name: Create Local Build
-        if: steps.tests.clippy == 0
-        id: build
-        run: cargo build -v --release
-
-      - name: Run Unit Tests
-        if: steps.tests.build == 0
-        id: unit_tests
-        run: cargo test -v --release
-
-      - name: Run Integration Tests
-        if: steps.tests.unit_tests == 0
-        id: integration_tests
-        run: cargo test -v --release -- --ignored
+      - name: Build and Restart Application
+        run: |
+          echo '${{secrets.DEPLOYKEY}}' > deploy_key
+          chmod 600 ./deploy_key
+          ssh -i ./deploy_key -o 'StrictHostKeyChecking no' -v ${{env.REMOTE}} 'cd ${{secrets.DESTINATION}};git pull origin main;RUSTFLAGS="-C target-cpu=native" cargo build --release;pm2 restart 1'

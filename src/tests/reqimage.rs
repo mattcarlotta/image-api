@@ -7,12 +7,12 @@ use std::path::Path;
 #[ignore]
 fn valid_request_static_image() {
     // remove old file if exists
-    let old_file = get_static_file("placeholder_35.png");
+    let old_file = get_static_file("rustybucket_35.png");
     if old_file.is_file() {
         fs::remove_file(&old_file).ok();
     }
 
-    let path = Path::new("placeholder.png");
+    let path = Path::new("rustybucket.png");
 
     let img = RequestedImage::new(path, 35, None, false);
 
@@ -39,16 +39,16 @@ fn valid_request_static_image() {
 #[ignore]
 fn valid_request_static_image_new_ext() {
     // remove old file if exists
-    let old_file = get_static_file("placeholder_10.png");
+    let old_file = get_static_file("rustybucket_10.png");
     if old_file.is_file() {
         fs::remove_file(&old_file).ok();
     }
-    let old_file_webp = get_static_file("placeholder_10.webp");
+    let old_file_webp = get_static_file("rustybucket_10.webp");
     if old_file_webp.is_file() {
         fs::remove_file(&old_file_webp).ok();
     }
 
-    let path = Path::new("placeholder.png");
+    let path = Path::new("rustybucket.png");
 
     let img = RequestedImage::new(path, 10, Some("webp"), false);
 

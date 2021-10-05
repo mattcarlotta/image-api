@@ -17,7 +17,8 @@ impl ResponseType {
         match self {
             ResponseType::Chunked(body) => (
                 body,
-                "Transfer-Encoding: chunked\r\nCache-Control: max-age=31536000".to_string(),
+                "Transfer-Encoding: chunked\r\nCache-Control: public, max-age=31536000, immutable"
+                    .to_string(),
             ),
             ResponseType::Html(body) | ResponseType::Text(body) => (
                 body.to_owned().into_bytes(),

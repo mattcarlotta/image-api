@@ -1,6 +1,10 @@
 [package]
-name = "image-api"
-version = "1.0.0"
+name = "rustybucket"
+description = "A custom built Rust API server to dynamically resize images based upon a URL query"
+license = "AGPL-3.0"
+repository = "https://github.com/mattcarlotta/image-api"
+version = "1.0.1"
+authors = ["Matt Carlotta <matt@mattcarlotta.sh>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

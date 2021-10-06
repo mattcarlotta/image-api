@@ -12,6 +12,7 @@ pub enum ContentType {
     Ico,
     Html,
     Text,
+    Css,
     Invalid,
 }
 
@@ -29,6 +30,7 @@ impl ContentType {
             ContentType::Ico => "image/ico",
             ContentType::Text => "text/plain; charset=utf-8",
             ContentType::Html => "text/html; charset=utf-8",
+            ContentType::Css => "text/css",
             ContentType::Invalid => "",
         }
     }
@@ -58,6 +60,7 @@ impl ContentType {
             "ico" => Some(ContentType::Ico),
             "txt" => Some(ContentType::Text),
             "html" => Some(ContentType::Html),
+            "css" => Some(ContentType::Css),
             _ => None,
         }
     }

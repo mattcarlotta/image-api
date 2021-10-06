@@ -32,6 +32,7 @@ pub fn router(mut stream: TcpStream, cache: Cache, allowedhosts: AllowedHosts) {
         Method::Get => match req.path.as_str() {
             "/" => controllers::hello(req, res),
             "/favicon.ico" => controllers::favicon(req, res),
+            "/styles.css" => controllers::styles(req, res),
             "/testing" => controllers::testing(req, res),
             _ => controllers::image(cache, req, res),
         },

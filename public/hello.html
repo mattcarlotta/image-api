@@ -2,11 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta
+      name="description"
+      content="A custom built Rust API server to dynamically resize images based upon a URL query."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/styles.css" />
     <title>Rusty Bucket</title>
   </head>
   <body>
-    <main style="text-align: center">
+    <main class="page-container">
       <h1>Welcome!</h1>
       <picture>
         <source
@@ -14,12 +22,14 @@
           type="image/webp"
         />
         <img
-          style="display: block; margin: 0 auto"
+          class="logo"
+          height="200px"
+          width="200px"
           src="https://static.mattcarlotta.sh/rustybucket.png"
           alt="rustybucket.png"
         />
       </picture>
-      <p style="margin-top: 40px">
+      <p class="description">
         There's not much to see here, but if you're interested, this API is a
         part of an open source project:
       </p>

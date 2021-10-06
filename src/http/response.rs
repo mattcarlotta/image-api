@@ -8,6 +8,7 @@ use std::net::TcpStream;
 pub enum ResponseType {
     Chunked(Vec<u8>),
     Html(String),
+    Css(String),
     Text(String),
 }
 
@@ -20,7 +21,7 @@ impl ResponseType {
                 "Transfer-Encoding: chunked\r\nCache-Control: public, max-age=31536000, immutable"
                     .to_string(),
             ),
-            ResponseType::Html(body) | ResponseType::Text(body) => (
+            ResponseType::Html(body) | ResponseType::Text(body) | ResponseType::Css(body) => (
                 body.to_owned().into_bytes(),
                 format!("Content-Length: {}", body.len()),
             ),
@@ -101,6 +102,7 @@ impl<'a> Response<'a> {
             &data_type,
             "Connection: keep-alive",
             "Content-Disposition: inline",
+            "Content-Security-Policy: default-src 'none'; font-src 'none'; script-src 'none'; manifest-src 'none'; media-src 'none'; style-src 'self'; base-uri 'none'; img-src 'self' *.mattcarlotta.sh data:; form-action 'none'; frame-ancestors 'none'; connect-src 'none'; worker-src 'none';",
             &allowed_host,
             "Access-Control-Allow-Methods: GET, OPTIONS",
             "Strict-Transport-Security: max-age=15768000; includeSubDomains",

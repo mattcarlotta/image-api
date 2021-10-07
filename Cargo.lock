@@ -427,19 +427,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "image-api"
-version = "1.0.0"
-dependencies = [
- "chrono",
- "chunked_transfer",
- "httparse",
- "image",
- "libwebp-sys",
- "num_cpus",
- "reqwest",
-]
-
-[[package]]
 name = "indexmap"
 version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -878,6 +865,19 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "winreg",
+]
+
+[[package]]
+name = "rustybucket"
+version = "1.0.1"
+dependencies = [
+ "chrono",
+ "chunked_transfer",
+ "httparse",
+ "image",
+ "libwebp-sys",
+ "num_cpus",
+ "reqwest",
 ]
 
 [[package]]

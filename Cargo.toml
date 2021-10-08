@@ -3,7 +3,7 @@ name = "rustybucket"
 description = "A custom built Rust API server to dynamically resize images based upon a URL query"
 license = "AGPL-3.0"
 repository = "https://github.com/mattcarlotta/image-api"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Matt Carlotta <matt@mattcarlotta.sh>"]
 edition = "2018"
 

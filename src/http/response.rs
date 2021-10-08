@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use super::{ContentType, Method, Request, StatusCode};
 use chrono::prelude::{DateTime, Utc};
+use std::env;
 use std::io::prelude::Write;
 use std::net::TcpStream;
 
@@ -93,6 +94,13 @@ impl<'a> Response<'a> {
         let date = format!("Date: {}", Utc::now().format("%a, %d %b %Y %H:%M:%S GMT"));
         let ct = format!("Content-Type: {}", self.content_type);
         let allowed_host = format!("Access-Control-Allow-Origin: {}", self.allowed_host);
+        let in_testing = env::var("testing").unwrap_or_else(|_| "".to_string());
+        let allow_script = if !in_testing.is_empty() {
+            "'self' 'unsafe-inline' 'unsafe-eval'"
+        } else {
+            "none"
+        };
+        let csp = format!("Content-Security-Policy: default-src 'none'; font-src 'none'; script-src {}; manifest-src 'none'; media-src 'none'; style-src 'self'; base-uri 'none'; img-src 'self' *.mattcarlotta.sh data:; form-action 'none'; frame-ancestors 'none'; connect-src 'none'; worker-src 'none';", allow_script);
 
         let mut response = [
             &header,
@@ -102,7 +110,7 @@ impl<'a> Response<'a> {
             &data_type,
             "Connection: keep-alive",
             "Content-Disposition: inline",
-            "Content-Security-Policy: default-src 'none'; font-src 'none'; script-src 'none'; manifest-src 'none'; media-src 'none'; style-src 'self'; base-uri 'none'; img-src 'self' *.mattcarlotta.sh data:; form-action 'none'; frame-ancestors 'none'; connect-src 'none'; worker-src 'none';",
+            &csp,
             &allowed_host,
             "Access-Control-Allow-Methods: GET, OPTIONS",
             "Strict-Transport-Security: max-age=15768000; includeSubDomains",
